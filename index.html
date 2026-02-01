@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego de Dados - Aprende a Leer</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="game-container">
+        <!-- Pantalla de Inicio -->
+        <div id="pantalla-inicio" class="pantalla activa">
+            <h1>🎲 Juego de Dados 🎲</h1>
+            <h2>¡Aprende a Leer Jugando!</h2>
+            <div class="dados-decorativos">
+                <span class="dado">A</span>
+                <span class="dado">E</span>
+                <span class="dado">S</span>
+                <span class="dado">O</span>
+                <span class="dado">L</span>
+                <span class="dado">I</span>
+            </div>
+            <button id="btn-comenzar" class="btn-principal">🎮 Comenzar a Jugar</button>
+        </div>
+
+        <!-- Pantalla de Registro de Jugadores -->
+        <div id="pantalla-registro" class="pantalla">
+            <h2>📝 Registro de Jugadores</h2>
+
+            <div id="registro-jugador1" class="registro-form">
+                <h3>👤 Jugador 1</h3>
+                <input type="text" id="nombre-jugador1" placeholder="Escribe tu nombre..." maxlength="15">
+                <button id="btn-confirmar1" class="btn-confirmar">✓ Confirmar</button>
+            </div>
+
+            <div id="registro-jugador2" class="registro-form oculto">
+                <h3>👤 Jugador 2</h3>
+                <input type="text" id="nombre-jugador2" placeholder="Escribe tu nombre..." maxlength="15">
+                <button id="btn-confirmar2" class="btn-confirmar">✓ Confirmar</button>
+            </div>
+
+            <div id="jugadores-registrados" class="jugadores-lista oculto">
+                <p>✅ <span id="nombre1-display"></span></p>
+                <p>✅ <span id="nombre2-display"></span></p>
+            </div>
+        </div>
+
+        <!-- Pantalla de Anuncio de Turno -->
+        <div id="pantalla-turno" class="pantalla">
+            <h2>🌟 ¡Es tu turno! 🌟</h2>
+            <p class="nombre-turno" id="jugador-turno-nombre"></p>
+            <p class="info-ronda">Ronda <span id="ronda-actual">1</span> de 5</p>
+            <button id="btn-iniciar-ronda" class="btn-principal">¡Listo para jugar! 🎯</button>
+        </div>
+
+        <!-- Pantalla de Juego -->
+        <div id="pantalla-juego" class="pantalla">
+            <div class="header-juego">
+                <div class="info-jugador">
+                    <span id="nombre-jugador-actual"></span>
+                </div>
+                <div class="temporizador" id="temporizador">
+                    <span id="tiempo">30</span>s
+                </div>
+                <div class="marcador">
+                    <span id="marcador-j1">0</span> - <span id="marcador-j2">0</span>
+                </div>
+            </div>
+
+            <div class="area-imagen">
+                <h3>¿Qué es esto? Forma la palabra con los dados</h3>
+                <div class="imagen-container">
+                    <img id="imagen-palabra" src="" alt="Imagen para adivinar">
+                </div>
+            </div>
+
+            <div class="area-dados">
+                <p>🎲 Usa tus dados para formar la palabra 🎲</p>
+                <div class="dados-hint">
+                    <span class="dado consonante">Consonantes</span>
+                    <span class="dado vocal">Vocales</span>
+                </div>
+            </div>
+
+            <button id="btn-mostrar-respuesta" class="btn-respuesta">👁️ Mostrar Respuesta</button>
+
+            <div id="area-respuesta" class="oculto">
+                <div class="respuesta-correcta">
+                    <h3>La palabra es:</h3>
+                    <p id="palabra-correcta" class="palabra-grande"></p>
+                </div>
+                <div class="botones-resultado">
+                    <button id="btn-acerto" class="btn-acierto">✅ ¡Acerté!</button>
+                    <button id="btn-fallo" class="btn-fallo">❌ No acerté</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pantalla de Tiempo Agotado -->
+        <div id="pantalla-tiempo-agotado" class="pantalla">
+            <h2>⏰ ¡Se acabó el tiempo!</h2>
+            <p>La palabra era:</p>
+            <p id="palabra-tiempo-agotado" class="palabra-grande"></p>
+            <button id="btn-continuar-tiempo" class="btn-principal">Continuar ➡️</button>
+        </div>
+
+        <!-- Pantalla de Resultados Finales -->
+        <div id="pantalla-final" class="pantalla">
+            <h2>🏆 ¡Fin del Juego! 🏆</h2>
+            <div class="resultados-finales">
+                <div class="resultado-jugador">
+                    <span id="final-nombre1"></span>
+                    <span id="final-puntos1" class="puntos-final"></span>
+                </div>
+                <div class="resultado-jugador">
+                    <span id="final-nombre2"></span>
+                    <span id="final-puntos2" class="puntos-final"></span>
+                </div>
+            </div>
+            <div id="mensaje-ganador" class="mensaje-ganador"></div>
+            <button id="btn-jugar-nuevo" class="btn-principal">🔄 Jugar de Nuevo</button>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
