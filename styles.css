@@ -7,22 +7,33 @@
 
 body {
     font-family: 'Comic Sans MS', 'Chalkboard', 'Comic Neue', cursive, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab, #667eea, #764ba2);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
     min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 20px;
+    overflow-x: hidden;
+}
+
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 
 .game-container {
-    background: white;
+    background: linear-gradient(180deg, #ffffff 0%, #f8f9ff 100%);
     border-radius: 30px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 40px rgba(108, 92, 231, 0.2);
     padding: 40px;
     max-width: 600px;
     width: 100%;
     text-align: center;
+    position: relative;
+    overflow: hidden;
 }
 
 /* Pantallas */
@@ -32,7 +43,18 @@ body {
 
 .pantalla.activa {
     display: block;
-    animation: fadeIn 0.5s ease;
+    animation: slideUp 0.5s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 @keyframes fadeIn {
@@ -44,18 +66,111 @@ body {
     display: none !important;
 }
 
-/* Pantalla de Inicio */
+/* ==========================================
+   ANIMACIONES NUEVAS
+   ========================================== */
+
+@keyframes rainbow {
+    0% { color: #ff6b6b; }
+    14% { color: #feca57; }
+    28% { color: #48dbfb; }
+    42% { color: #ff9ff3; }
+    57% { color: #54a0ff; }
+    71% { color: #5f27cd; }
+    85% { color: #00d2d3; }
+    100% { color: #ff6b6b; }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0) rotate(0deg); }
+    10% { transform: translateX(-5px) rotate(-5deg); }
+    20% { transform: translateX(5px) rotate(5deg); }
+    30% { transform: translateX(-5px) rotate(-3deg); }
+    40% { transform: translateX(5px) rotate(3deg); }
+    50% { transform: translateX(-3px) rotate(-2deg); }
+    60% { transform: translateX(3px) rotate(2deg); }
+    70% { transform: translateX(-2px) rotate(-1deg); }
+    80% { transform: translateX(2px) rotate(1deg); }
+    90% { transform: translateX(-1px) rotate(0deg); }
+}
+
+@keyframes glowPulse {
+    0%, 100% {
+        box-shadow: 0 10px 30px rgba(0, 184, 148, 0.4), 0 0 20px rgba(0, 184, 148, 0.2);
+    }
+    50% {
+        box-shadow: 0 10px 40px rgba(0, 184, 148, 0.6), 0 0 40px rgba(0, 184, 148, 0.4);
+    }
+}
+
+@keyframes zoomBounce {
+    0% { transform: scale(0); }
+    50% { transform: scale(1.2); }
+    70% { transform: scale(0.9); }
+    100% { transform: scale(1); }
+}
+
+@keyframes wiggle {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-5deg); }
+    75% { transform: rotate(5deg); }
+}
+
+@keyframes sparkle {
+    0%, 100% {
+        transform: scale(1);
+        text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    }
+    50% {
+        transform: scale(1.1);
+        text-shadow: 0 0 30px rgba(255, 215, 0, 1), 0 0 60px rgba(255, 215, 0, 0.5);
+    }
+}
+
+@keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    14% { transform: scale(1.1); }
+    28% { transform: scale(1); }
+    42% { transform: scale(1.1); }
+    70% { transform: scale(1); }
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+@keyframes timerPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+/* ==========================================
+   PANTALLA DE INICIO
+   ========================================== */
+
 #pantalla-inicio h1 {
     font-size: 2.5em;
-    color: #6c5ce7;
     margin-bottom: 10px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.2);
+    animation: rainbow 5s linear infinite;
 }
 
 #pantalla-inicio h2 {
     font-size: 1.3em;
     color: #a29bfe;
     margin-bottom: 30px;
+    animation: pulse 2s ease infinite;
 }
 
 .dados-decorativos {
@@ -77,22 +192,27 @@ body {
     font-size: 1.5em;
     font-weight: bold;
     color: white;
-    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
-    animation: bounce 2s infinite;
+    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2), inset 0 0 10px rgba(255, 255, 255, 0.3);
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
-.dado:nth-child(2) { animation-delay: 0.1s; }
-.dado:nth-child(3) { animation-delay: 0.2s; }
-.dado:nth-child(4) { animation-delay: 0.3s; }
-.dado:nth-child(5) { animation-delay: 0.4s; }
-.dado:nth-child(6) { animation-delay: 0.5s; }
-
-@keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
+.dado:hover {
+    animation: shake 0.5s ease;
+    transform: scale(1.1);
 }
 
-/* Botones */
+.dado:nth-child(1) { animation: bounce 2s infinite 0s; background: linear-gradient(145deg, #ff6b6b, #ee5a5a); }
+.dado:nth-child(2) { animation: bounce 2s infinite 0.1s; background: linear-gradient(145deg, #feca57, #f9a826); }
+.dado:nth-child(3) { animation: bounce 2s infinite 0.2s; background: linear-gradient(145deg, #48dbfb, #0abde3); }
+.dado:nth-child(4) { animation: bounce 2s infinite 0.3s; background: linear-gradient(145deg, #ff9ff3, #f368e0); }
+.dado:nth-child(5) { animation: bounce 2s infinite 0.4s; background: linear-gradient(145deg, #54a0ff, #2e86de); }
+.dado:nth-child(6) { animation: bounce 2s infinite 0.5s; background: linear-gradient(145deg, #5f27cd, #341f97); }
+
+/* ==========================================
+   BOTONES
+   ========================================== */
+
 .btn-principal {
     background: linear-gradient(145deg, #00b894, #00cec9);
     color: white;
@@ -104,28 +224,57 @@ body {
     cursor: pointer;
     box-shadow: 0 10px 30px rgba(0, 184, 148, 0.4);
     transition: all 0.3s ease;
+    animation: glowPulse 2s ease infinite;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-principal::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.5s ease;
+}
+
+.btn-principal:hover::before {
+    left: 100%;
 }
 
 .btn-principal:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 40px rgba(0, 184, 148, 0.5);
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 15px 40px rgba(0, 184, 148, 0.6);
 }
 
 .btn-principal:active {
-    transform: translateY(0);
+    transform: translateY(0) scale(0.98);
 }
 
-/* Pantalla de Registro */
+/* ==========================================
+   PANTALLA DE REGISTRO
+   ========================================== */
+
 #pantalla-registro h2 {
     color: #6c5ce7;
     margin-bottom: 30px;
+    animation: wiggle 3s ease infinite;
 }
 
 .registro-form {
-    background: #f8f9fa;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     padding: 25px;
     border-radius: 20px;
     margin-bottom: 20px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.registro-form:hover {
+    transform: scale(1.02);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
 }
 
 .registro-form h3 {
@@ -142,12 +291,15 @@ body {
     border-radius: 15px;
     text-align: center;
     margin-bottom: 15px;
-    transition: border-color 0.3s;
+    transition: all 0.3s ease;
+    background: white;
 }
 
 .registro-form input:focus {
     outline: none;
     border-color: #6c5ce7;
+    box-shadow: 0 0 20px rgba(108, 92, 231, 0.3);
+    transform: scale(1.02);
 }
 
 .btn-confirmar {
@@ -160,17 +312,20 @@ body {
     border-radius: 25px;
     cursor: pointer;
     transition: all 0.3s ease;
+    box-shadow: 0 5px 20px rgba(108, 92, 231, 0.3);
 }
 
 .btn-confirmar:hover {
-    transform: scale(1.05);
+    transform: scale(1.1);
+    box-shadow: 0 10px 30px rgba(108, 92, 231, 0.5);
 }
 
 .jugadores-lista {
-    background: #d4edda;
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
     padding: 20px;
     border-radius: 15px;
     margin-top: 20px;
+    animation: zoomBounce 0.5s ease;
 }
 
 .jugadores-lista p {
@@ -179,11 +334,16 @@ body {
     margin: 10px 0;
 }
 
-/* Pantalla de Turno */
+/* ==========================================
+   PANTALLA DE TURNO
+   ========================================== */
+
 #pantalla-turno h2 {
     color: #fdcb6e;
     font-size: 2em;
     margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    animation: pulse 1s ease infinite;
 }
 
 .nombre-turno {
@@ -191,61 +351,76 @@ body {
     color: #6c5ce7;
     font-weight: bold;
     margin-bottom: 15px;
-    animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
+    animation: wiggle 1s ease infinite, rainbow 3s linear infinite;
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.2);
 }
 
 .info-ronda {
     font-size: 1.2em;
     color: #636e72;
     margin-bottom: 30px;
+    padding: 10px 20px;
+    background: rgba(99, 110, 114, 0.1);
+    border-radius: 20px;
+    display: inline-block;
 }
 
-/* Pantalla de Juego */
+/* ==========================================
+   PANTALLA DE JUEGO
+   ========================================== */
+
 .header-juego {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
     padding: 15px;
-    background: #f8f9fa;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 .info-jugador {
     font-size: 1.1em;
     color: #6c5ce7;
     font-weight: bold;
+    animation: pulse 2s ease infinite;
 }
 
 .temporizador {
-    background: linear-gradient(145deg, #e17055, #d63031);
+    background: linear-gradient(145deg, #00b894, #00cec9);
     color: white;
     padding: 10px 20px;
     border-radius: 25px;
     font-size: 1.3em;
     font-weight: bold;
     animation: timerPulse 1s infinite;
+    box-shadow: 0 5px 20px rgba(0, 184, 148, 0.4);
+    transition: all 0.3s ease;
 }
 
-@keyframes timerPulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
+.temporizador.medio {
+    background: linear-gradient(145deg, #fdcb6e, #f39c12);
+    box-shadow: 0 5px 20px rgba(243, 156, 18, 0.4);
 }
 
 .temporizador.warning {
     background: linear-gradient(145deg, #d63031, #c0392b);
-    animation: timerPulse 0.5s infinite;
+    animation: heartbeat 0.5s infinite;
+    box-shadow: 0 5px 20px rgba(214, 48, 49, 0.6);
 }
 
 .marcador {
     font-size: 1.3em;
     color: #2d3436;
     font-weight: bold;
+    padding: 5px 15px;
+    background: rgba(108, 92, 231, 0.1);
+    border-radius: 15px;
+}
+
+.marcador.updated {
+    animation: sparkle 0.5s ease;
 }
 
 .area-imagen {
@@ -258,20 +433,30 @@ body {
 }
 
 .imagen-container {
-    background: #fff;
-    border: 5px dashed #dfe6e9;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border: 5px dashed #a29bfe;
     border-radius: 20px;
     padding: 20px;
     min-height: 200px;
     display: flex;
     justify-content: center;
     align-items: center;
+    transition: all 0.3s ease;
+}
+
+.imagen-container:hover {
+    border-color: #6c5ce7;
+    box-shadow: 0 0 30px rgba(108, 92, 231, 0.2);
 }
 
 .imagen-container img {
     max-width: 180px;
     max-height: 180px;
     object-fit: contain;
+}
+
+.emoji-display {
+    animation: zoomBounce 0.5s ease, float 3s ease infinite;
 }
 
 .area-dados {
@@ -294,6 +479,11 @@ body {
     height: auto;
     padding: 10px 20px;
     font-size: 1em;
+    animation: none;
+}
+
+.dados-hint .dado:hover {
+    animation: shake 0.5s ease;
 }
 
 .dado.consonante {
@@ -315,18 +505,21 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
     margin-bottom: 20px;
+    box-shadow: 0 10px 30px rgba(243, 156, 18, 0.4);
+    animation: glowPulse 2s ease infinite;
 }
 
 .btn-respuesta:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 25px rgba(243, 156, 18, 0.4);
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 15px 40px rgba(243, 156, 18, 0.6);
 }
 
 #area-respuesta {
-    background: #f8f9fa;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     padding: 25px;
     border-radius: 20px;
-    animation: fadeIn 0.5s ease;
+    animation: zoomBounce 0.5s ease;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
 .respuesta-correcta h3 {
@@ -340,6 +533,8 @@ body {
     font-weight: bold;
     letter-spacing: 5px;
     margin-bottom: 20px;
+    animation: rainbow 3s linear infinite;
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.2);
 }
 
 .botones-resultado {
@@ -359,10 +554,12 @@ body {
     border-radius: 25px;
     cursor: pointer;
     transition: all 0.3s ease;
+    box-shadow: 0 5px 20px rgba(0, 184, 148, 0.4);
 }
 
 .btn-acierto:hover {
-    transform: scale(1.05);
+    transform: scale(1.1);
+    box-shadow: 0 10px 30px rgba(0, 184, 148, 0.6);
 }
 
 .btn-fallo {
@@ -375,16 +572,22 @@ body {
     border-radius: 25px;
     cursor: pointer;
     transition: all 0.3s ease;
+    box-shadow: 0 5px 20px rgba(214, 48, 49, 0.4);
 }
 
 .btn-fallo:hover {
-    transform: scale(1.05);
+    transform: scale(1.1);
+    box-shadow: 0 10px 30px rgba(214, 48, 49, 0.6);
 }
 
-/* Pantalla Tiempo Agotado */
+/* ==========================================
+   PANTALLA TIEMPO AGOTADO
+   ========================================== */
+
 #pantalla-tiempo-agotado h2 {
     color: #d63031;
     margin-bottom: 20px;
+    animation: shake 0.5s ease;
 }
 
 #pantalla-tiempo-agotado p {
@@ -392,10 +595,15 @@ body {
     font-size: 1.2em;
 }
 
-/* Pantalla Final */
+/* ==========================================
+   PANTALLA FINAL
+   ========================================== */
+
 #pantalla-final h2 {
     color: #fdcb6e;
     margin-bottom: 30px;
+    animation: rainbow 3s linear infinite;
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.2);
 }
 
 .resultados-finales {
@@ -406,11 +614,24 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #f8f9fa;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     padding: 20px 30px;
     border-radius: 15px;
     margin-bottom: 15px;
     font-size: 1.3em;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.resultado-jugador:hover {
+    transform: scale(1.02);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.resultado-jugador.ganador {
+    background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+    border: 3px solid #f39c12;
+    animation: sparkle 1s ease infinite;
 }
 
 .puntos-final {
@@ -419,16 +640,71 @@ body {
     padding: 10px 25px;
     border-radius: 20px;
     font-weight: bold;
+    box-shadow: 0 5px 15px rgba(108, 92, 231, 0.4);
 }
 
 .mensaje-ganador {
     font-size: 1.8em;
     color: #00b894;
     margin-bottom: 30px;
-    animation: pulse 1.5s infinite;
+    animation: pulse 1.5s infinite, rainbow 3s linear infinite;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-/* Responsive */
+/* ==========================================
+   CONFETI
+   ========================================== */
+
+#confeti-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.confeti {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    top: -10px;
+    animation: confetiFall 3s ease-out forwards;
+}
+
+.confeti.cuadrado {
+    border-radius: 2px;
+}
+
+.confeti.circulo {
+    border-radius: 50%;
+}
+
+.confeti.triangulo {
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 10px solid;
+}
+
+@keyframes confetiFall {
+    0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh) rotate(720deg);
+        opacity: 0;
+    }
+}
+
+/* ==========================================
+   RESPONSIVE
+   ========================================== */
+
 @media (max-width: 500px) {
     .game-container {
         padding: 25px;
