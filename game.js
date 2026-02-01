@@ -1,7 +1,18 @@
 // ==========================================
 // JUEGO DE DADOS - APRENDE A LEER
-// Versión 1.1.0 - Con sonidos y efectos mejorados
+// Versión 1.2.0 - Con configuración para padres
 // ==========================================
+
+// ==========================================
+// CONFIGURACIÓN DEL JUEGO (modificable por padres)
+// ==========================================
+
+let configuracion = {
+    tiempoPorTurno: 158,      // segundos
+    totalRondas: 5,            // número de rondas
+    dificultad: 'normal',      // 'facil', 'normal', 'dificil', 'mixto'
+    sonidosActivados: true
+};
 
 // Configuración de los dados (cada dado solo se usa UNA vez)
 // Dado consonante 1: p, m, s, t, n, d
@@ -18,8 +29,10 @@
 //   "t,p,d,s,m" están en dado 1 y 2, se pueden usar 2 veces
 
 // Banco de palabras VERIFICADAS que se pueden formar con los dados
-const PALABRAS = [
-    // === PALABRAS DE 2-3 LETRAS ===
+// Categorizadas por dificultad
+
+// FÁCIL: 2-3 letras
+const PALABRAS_FACIL = [
     { palabra: "sol", imagen: "🌞" },
     { palabra: "sal", imagen: "🧂" },
     { palabra: "mar", imagen: "🌊" },
@@ -32,9 +45,11 @@ const PALABRAS = [
     { palabra: "tos", imagen: "🤧" },
     { palabra: "ala", imagen: "🪽" },
     { palabra: "oso", imagen: "🐻" },
-    { palabra: "uno", imagen: "1️⃣" },
+    { palabra: "uno", imagen: "1️⃣" }
+];
 
-    // === PALABRAS DE 4 LETRAS ===
+// NORMAL: 4 letras
+const PALABRAS_NORMAL = [
     { palabra: "casa", imagen: "🏠" },
     { palabra: "mesa", imagen: "🪑" },
     { palabra: "pato", imagen: "🦆" },
@@ -83,7 +98,6 @@ const PALABRAS = [
     { palabra: "tomo", imagen: "📚" },
     { palabra: "mudo", imagen: "🤐" },
     { palabra: "mula", imagen: "🫏" },
-    { palabra: "fuma", imagen: "🚬" },
     { palabra: "judo", imagen: "🥋" },
     { palabra: "sola", imagen: "👩" },
     { palabra: "mole", imagen: "🍲" },
@@ -96,9 +110,11 @@ const PALABRAS = [
     { palabra: "cero", imagen: "0️⃣" },
     { palabra: "cara", imagen: "😊" },
     { palabra: "cosa", imagen: "📦" },
-    { palabra: "come", imagen: "🍽️" },
+    { palabra: "come", imagen: "🍽️" }
+];
 
-    // === PALABRAS DE 5+ LETRAS ===
+// DIFÍCIL: 5+ letras
+const PALABRAS_DIFICIL = [
     { palabra: "falda", imagen: "👗" },
     { palabra: "mosca", imagen: "🪰" },
     { palabra: "crema", imagen: "🧴" },
@@ -109,6 +125,21 @@ const PALABRAS = [
     { palabra: "cuero", imagen: "🧥" },
     { palabra: "suero", imagen: "💉" }
 ];
+
+// Función para obtener palabras según dificultad
+function obtenerPalabrasPorDificultad() {
+    switch (configuracion.dificultad) {
+        case 'facil':
+            return PALABRAS_FACIL;
+        case 'normal':
+            return [...PALABRAS_FACIL, ...PALABRAS_NORMAL];
+        case 'dificil':
+            return [...PALABRAS_NORMAL, ...PALABRAS_DIFICIL];
+        case 'mixto':
+        default:
+            return [...PALABRAS_FACIL, ...PALABRAS_NORMAL, ...PALABRAS_DIFICIL];
+    }
+}
 
 // Estado del juego
 let estadoJuego = {
@@ -124,6 +155,133 @@ let estadoJuego = {
     juegoTerminado: false
 };
 
+// ==========================================
+// FUNCIONES DE CONFIGURACIÓN
+// ==========================================
+
+function cargarConfiguracion() {
+    // Cargar configuración guardada en localStorage si existe
+    const configGuardada = localStorage.getItem('juegoLeerDados_config');
+    if (configGuardada) {
+        configuracion = JSON.parse(configGuardada);
+    }
+    actualizarInterfazConfig();
+}
+
+function guardarConfiguracion() {
+    // Leer valores de la interfaz
+    const tiempoPersonalizadoCheck = document.getElementById('tiempo-personalizado-check');
+    const tiempoPersonalizado = document.getElementById('tiempo-personalizado');
+
+    if (tiempoPersonalizadoCheck.checked && tiempoPersonalizado.value) {
+        configuracion.tiempoPorTurno = parseInt(tiempoPersonalizado.value);
+    } else {
+        const tiempoSeleccionado = document.querySelector('input[name="tiempo"]:checked');
+        if (tiempoSeleccionado) {
+            configuracion.tiempoPorTurno = parseInt(tiempoSeleccionado.value);
+        }
+    }
+
+    const rondasSeleccionadas = document.querySelector('input[name="rondas"]:checked');
+    if (rondasSeleccionadas) {
+        configuracion.totalRondas = parseInt(rondasSeleccionadas.value);
+    }
+
+    const dificultadSeleccionada = document.querySelector('input[name="dificultad"]:checked');
+    if (dificultadSeleccionada) {
+        configuracion.dificultad = dificultadSeleccionada.value;
+    }
+
+    configuracion.sonidosActivados = document.getElementById('sonidos-activados').checked;
+
+    // Guardar en localStorage
+    localStorage.setItem('juegoLeerDados_config', JSON.stringify(configuracion));
+
+    // Actualizar resumen
+    actualizarResumenConfig();
+}
+
+function actualizarInterfazConfig() {
+    // Actualizar tiempo
+    const tiempoRadios = document.querySelectorAll('input[name="tiempo"]');
+    let tiempoEncontrado = false;
+    tiempoRadios.forEach(radio => {
+        if (parseInt(radio.value) === configuracion.tiempoPorTurno) {
+            radio.checked = true;
+            tiempoEncontrado = true;
+        }
+    });
+
+    // Si no es un valor predefinido, usar personalizado
+    if (!tiempoEncontrado) {
+        document.getElementById('tiempo-personalizado-check').checked = true;
+        document.getElementById('tiempo-personalizado').value = configuracion.tiempoPorTurno;
+        document.getElementById('tiempo-personalizado').disabled = false;
+    }
+
+    // Actualizar rondas
+    const rondasRadios = document.querySelectorAll('input[name="rondas"]');
+    rondasRadios.forEach(radio => {
+        if (parseInt(radio.value) === configuracion.totalRondas) {
+            radio.checked = true;
+        }
+    });
+
+    // Actualizar dificultad
+    const dificultadRadios = document.querySelectorAll('input[name="dificultad"]');
+    dificultadRadios.forEach(radio => {
+        if (radio.value === configuracion.dificultad) {
+            radio.checked = true;
+        }
+    });
+
+    // Actualizar sonidos
+    document.getElementById('sonidos-activados').checked = configuracion.sonidosActivados;
+
+    // Actualizar visual de opciones seleccionadas
+    actualizarEstilosOpciones();
+    actualizarResumenConfig();
+}
+
+function actualizarEstilosOpciones() {
+    // Quitar clase selected de todos
+    document.querySelectorAll('.option-box').forEach(box => {
+        box.classList.remove('selected');
+    });
+
+    // Agregar clase selected a los seleccionados
+    document.querySelectorAll('input[type="radio"]:checked').forEach(radio => {
+        const optionBox = radio.nextElementSibling;
+        if (optionBox) {
+            optionBox.classList.add('selected');
+        }
+    });
+}
+
+function actualizarResumenConfig() {
+    const minutos = Math.floor(configuracion.tiempoPorTurno / 60);
+    const segundos = configuracion.tiempoPorTurno % 60;
+    const tiempoTexto = minutos > 0
+        ? (segundos > 0 ? `${minutos}:${segundos.toString().padStart(2, '0')} min` : `${minutos} min`)
+        : `${segundos} seg`;
+
+    const dificultadTexto = {
+        'facil': 'Fácil',
+        'normal': 'Normal',
+        'dificil': 'Difícil',
+        'mixto': 'Mixto'
+    };
+
+    const resumen = `Tiempo: ${tiempoTexto} | Rondas: ${configuracion.totalRondas} | Dificultad: ${dificultadTexto[configuracion.dificultad]} | Sonidos: ${configuracion.sonidosActivados ? 'Sí' : 'No'}`;
+
+    document.getElementById('resumen-config').textContent = resumen;
+}
+
+function aplicarConfiguracionAlJuego() {
+    estadoJuego.totalRondas = configuracion.totalRondas;
+    estadoJuego.tiempoRestante = configuracion.tiempoPorTurno;
+}
+
 // Contexto de audio para los sonidos
 let audioContext = null;
 
@@ -138,7 +296,7 @@ function inicializarAudio() {
 }
 
 function reproducirSonidoTick() {
-    if (!audioContext) return;
+    if (!audioContext || !configuracion.sonidosActivados) return;
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
     oscillator.connect(gainNode);
@@ -152,7 +310,7 @@ function reproducirSonidoTick() {
 }
 
 function reproducirSonidoWarning() {
-    if (!audioContext) return;
+    if (!audioContext || !configuracion.sonidosActivados) return;
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
     oscillator.connect(gainNode);
@@ -166,7 +324,7 @@ function reproducirSonidoWarning() {
 }
 
 function reproducirSonidoFin() {
-    if (!audioContext) return;
+    if (!audioContext || !configuracion.sonidosActivados) return;
     for (let i = 0; i < 3; i++) {
         setTimeout(() => {
             const oscillator = audioContext.createOscillator();
@@ -184,7 +342,7 @@ function reproducirSonidoFin() {
 }
 
 function reproducirSonidoAcierto() {
-    if (!audioContext) return;
+    if (!audioContext || !configuracion.sonidosActivados) return;
     const notas = [523.25, 659.25, 783.99];
     notas.forEach((freq, i) => {
         setTimeout(() => {
@@ -203,7 +361,7 @@ function reproducirSonidoAcierto() {
 }
 
 function reproducirSonidoError() {
-    if (!audioContext) return;
+    if (!audioContext || !configuracion.sonidosActivados) return;
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
     oscillator.connect(gainNode);
@@ -222,7 +380,7 @@ function reproducirSonidoError() {
 
 // Melodía de inicio (Do-Re-Mi-Fa-Sol)
 function reproducirSonidoInicio() {
-    if (!audioContext) return;
+    if (!audioContext || !configuracion.sonidosActivados) return;
     const notas = [261.63, 293.66, 329.63, 349.23, 392.00]; // Do, Re, Mi, Fa, Sol
     notas.forEach((freq, i) => {
         setTimeout(() => {
@@ -242,7 +400,7 @@ function reproducirSonidoInicio() {
 
 // Sonido Pop de confirmación
 function reproducirSonidoPop() {
-    if (!audioContext) return;
+    if (!audioContext || !configuracion.sonidosActivados) return;
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
     oscillator.connect(gainNode);
@@ -258,7 +416,7 @@ function reproducirSonidoPop() {
 
 // Fanfarria corta (Ta-da!)
 function reproducirSonidoFanfarria() {
-    if (!audioContext) return;
+    if (!audioContext || !configuracion.sonidosActivados) return;
     const notas = [392.00, 523.25, 659.25, 783.99]; // Sol, Do, Mi, Sol
     notas.forEach((freq, i) => {
         setTimeout(() => {
@@ -278,7 +436,7 @@ function reproducirSonidoFanfarria() {
 
 // Sonido de revelar (Whoosh)
 function reproducirSonidoRevelar() {
-    if (!audioContext) return;
+    if (!audioContext || !configuracion.sonidosActivados) return;
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
     oscillator.connect(gainNode);
@@ -294,7 +452,7 @@ function reproducirSonidoRevelar() {
 
 // Sonido de hover suave
 function reproducirSonidoHover() {
-    if (!audioContext) return;
+    if (!audioContext || !configuracion.sonidosActivados) return;
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
     oscillator.connect(gainNode);
@@ -309,7 +467,7 @@ function reproducirSonidoHover() {
 
 // Sonido de click
 function reproducirSonidoClick() {
-    if (!audioContext) return;
+    if (!audioContext || !configuracion.sonidosActivados) return;
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
     oscillator.connect(gainNode);
@@ -324,7 +482,7 @@ function reproducirSonidoClick() {
 
 // Redoble de tambor corto
 function reproducirSonidoDrumroll() {
-    if (!audioContext) return;
+    if (!audioContext || !configuracion.sonidosActivados) return;
     for (let i = 0; i < 8; i++) {
         setTimeout(() => {
             const oscillator = audioContext.createOscillator();
@@ -343,7 +501,7 @@ function reproducirSonidoDrumroll() {
 
 // Sonido de transición
 function reproducirSonidoTransicion() {
-    if (!audioContext) return;
+    if (!audioContext || !configuracion.sonidosActivados) return;
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
     oscillator.connect(gainNode);
@@ -360,7 +518,7 @@ function reproducirSonidoTransicion() {
 
 // Música de victoria épica
 function reproducirSonidoVictoria() {
-    if (!audioContext) return;
+    if (!audioContext || !configuracion.sonidosActivados) return;
     const melodia = [
         { freq: 523.25, dur: 0.15 },  // Do
         { freq: 523.25, dur: 0.15 },  // Do
@@ -393,7 +551,7 @@ function reproducirSonidoVictoria() {
 
 // Sonido de empate (neutral/amigable)
 function reproducirSonidoEmpate() {
-    if (!audioContext) return;
+    if (!audioContext || !configuracion.sonidosActivados) return;
     const notas = [392.00, 349.23, 392.00, 440.00, 392.00];
     notas.forEach((freq, i) => {
         setTimeout(() => {
@@ -465,6 +623,7 @@ function mostrarPantalla(idPantalla) {
 // ==========================================
 
 function obtenerPalabraAleatoria() {
+    const PALABRAS = obtenerPalabrasPorDificultad();
     const disponibles = PALABRAS.filter(p => !estadoJuego.palabrasUsadas.includes(p.palabra));
 
     if (disponibles.length === 0) {
@@ -478,7 +637,7 @@ function obtenerPalabraAleatoria() {
 }
 
 function iniciarTemporizador() {
-    estadoJuego.tiempoRestante = 158;
+    estadoJuego.tiempoRestante = configuracion.tiempoPorTurno;
     actualizarDisplayTemporizador();
 
     const temporizadorElement = document.getElementById('temporizador');
@@ -566,6 +725,7 @@ function mostrarPantallaTurno() {
     const jugador = obtenerJugadorActual();
     document.getElementById('jugador-turno-nombre').textContent = jugador.nombre;
     document.getElementById('ronda-actual').textContent = estadoJuego.rondaActual;
+    document.getElementById('total-rondas').textContent = configuracion.totalRondas;
     mostrarPantalla('pantalla-turno');
 }
 
@@ -668,10 +828,10 @@ function reiniciarJuego() {
         jugador2: { nombre: "", puntos: 0 },
         turnoActual: 1,
         rondaActual: 1,
-        totalRondas: 5,
+        totalRondas: configuracion.totalRondas,
         palabrasUsadas: [],
         palabraActual: null,
-        tiempoRestante: 158,
+        tiempoRestante: configuracion.tiempoPorTurno,
         intervaloTemporizador: null,
         juegoTerminado: false
     };
@@ -799,5 +959,75 @@ document.addEventListener('DOMContentLoaded', () => {
             inicializarAudio();
             reproducirSonidoPop();
         });
+    });
+
+    // ==========================================
+    // EVENT LISTENERS - CONFIGURACIÓN
+    // ==========================================
+
+    // Cargar configuración al iniciar
+    cargarConfiguracion();
+
+    // Botón abrir configuración
+    document.getElementById('btn-config').addEventListener('click', () => {
+        reproducirSonidoClick();
+        cargarConfiguracion();
+        mostrarPantalla('pantalla-config');
+    });
+
+    // Botón guardar configuración
+    document.getElementById('btn-guardar-config').addEventListener('click', () => {
+        reproducirSonidoPop();
+        guardarConfiguracion();
+        aplicarConfiguracionAlJuego();
+        mostrarPantalla('pantalla-inicio');
+    });
+
+    // Botón cancelar configuración
+    document.getElementById('btn-cancelar-config').addEventListener('click', () => {
+        reproducirSonidoClick();
+        cargarConfiguracion(); // Restaurar valores guardados
+        mostrarPantalla('pantalla-inicio');
+    });
+
+    // Tiempo personalizado checkbox
+    document.getElementById('tiempo-personalizado-check').addEventListener('change', (e) => {
+        const inputTiempo = document.getElementById('tiempo-personalizado');
+        inputTiempo.disabled = !e.target.checked;
+        if (e.target.checked) {
+            inputTiempo.focus();
+            // Desmarcar las opciones de radio
+            document.querySelectorAll('input[name="tiempo"]').forEach(radio => {
+                radio.checked = false;
+            });
+        }
+        actualizarEstilosOpciones();
+    });
+
+    // Actualizar estilos cuando cambian los radios
+    document.querySelectorAll('input[type="radio"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+            reproducirSonidoClick();
+            actualizarEstilosOpciones();
+
+            // Si se selecciona un tiempo predefinido, desmarcar personalizado
+            if (radio.name === 'tiempo') {
+                document.getElementById('tiempo-personalizado-check').checked = false;
+                document.getElementById('tiempo-personalizado').disabled = true;
+            }
+
+            // Actualizar resumen en tiempo real
+            guardarConfiguracion();
+        });
+    });
+
+    // Actualizar resumen cuando cambia el tiempo personalizado
+    document.getElementById('tiempo-personalizado').addEventListener('input', () => {
+        guardarConfiguracion();
+    });
+
+    // Actualizar cuando cambia el toggle de sonidos
+    document.getElementById('sonidos-activados').addEventListener('change', () => {
+        guardarConfiguracion();
     });
 });
