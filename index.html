@@ -157,6 +157,13 @@
                 </div>
             </div>
 
+            <!-- Sección de Editor de Palabras -->
+            <div class="config-section">
+                <h3>📝 Editor de Palabras</h3>
+                <p class="editor-desc">Personaliza, habilita o deshabilita palabras del juego</p>
+                <button id="btn-abrir-editor" class="btn-editor">✏️ Abrir Editor de Palabras</button>
+            </div>
+
             <div class="config-resumen">
                 <h4>📋 Resumen de configuración:</h4>
                 <p id="resumen-config">Tiempo: 2:38 min | Rondas: 5 | Dificultad: Normal | Sonidos: Sí</p>
@@ -227,6 +234,12 @@
                 </div>
             </div>
 
+            <!-- Contenedor de ayuda progresiva -->
+            <div id="ayuda-container" class="ayuda-container">
+                <div class="ayuda-label">💡 Pista:</div>
+                <div class="ayuda-letras">_ _ _ _</div>
+            </div>
+
             <button id="btn-mostrar-respuesta" class="btn-respuesta">👁️ Mostrar Respuesta</button>
 
             <div id="area-respuesta" class="oculto">
@@ -269,6 +282,81 @@
 
     <!-- Contenedor de Confeti -->
     <div id="confeti-container"></div>
+
+    <!-- Modal Editor de Palabras -->
+    <div id="modal-editor" class="modal-overlay oculto">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📝 Editor de Palabras</h2>
+                <button id="btn-cerrar-modal" class="btn-cerrar-modal">✕</button>
+            </div>
+
+            <div class="editor-filtros">
+                <div class="filtro-busqueda">
+                    <input type="text" id="buscar-palabra" placeholder="🔍 Buscar palabra...">
+                </div>
+                <div class="filtro-dificultad">
+                    <button class="filtro-btn active" data-filtro="todas">Todas</button>
+                    <button class="filtro-btn" data-filtro="facil">🌱 Fácil</button>
+                    <button class="filtro-btn" data-filtro="normal">🌿 Normal</button>
+                    <button class="filtro-btn" data-filtro="dificil">🌳 Difícil</button>
+                </div>
+                <div class="filtro-estado">
+                    <button class="filtro-btn" data-estado="todas">Todas</button>
+                    <button class="filtro-btn" data-estado="habilitadas">✅ Habilitadas</button>
+                    <button class="filtro-btn" data-estado="deshabilitadas">❌ Deshabilitadas</button>
+                </div>
+            </div>
+
+            <div class="editor-acciones-masivas">
+                <button id="btn-nueva-palabra" class="btn-accion-masiva btn-nueva">➕ Nueva Palabra</button>
+                <button id="btn-habilitar-todas" class="btn-accion-masiva">✅ Habilitar Todas</button>
+                <button id="btn-deshabilitar-todas" class="btn-accion-masiva">❌ Deshabilitar Todas</button>
+                <button id="btn-restaurar-palabras" class="btn-accion-masiva">🔄 Restaurar Original</button>
+            </div>
+
+            <!-- Formulario para nueva palabra (oculto por defecto) -->
+            <div id="form-nueva-palabra" class="form-nueva-palabra oculto">
+                <h4>➕ Agregar Nueva Palabra</h4>
+                <div class="form-nueva-contenido">
+                    <div class="form-nueva-imagen">
+                        <div id="preview-nueva-imagen" class="preview-nueva-imagen">
+                            <span>📷</span>
+                            <small>Clic para agregar imagen</small>
+                        </div>
+                        <input type="file" id="input-nueva-imagen" accept="image/png, image/jpeg, image/gif, image/webp" class="oculto">
+                    </div>
+                    <div class="form-nueva-campos">
+                        <input type="text" id="input-nueva-palabra" placeholder="Escribe la palabra..." maxlength="20">
+                        <select id="select-nueva-dificultad">
+                            <option value="facil">🌱 Fácil (2-3 letras)</option>
+                            <option value="normal" selected>🌿 Normal (4 letras)</option>
+                            <option value="dificil">🌳 Difícil (5+ letras)</option>
+                        </select>
+                    </div>
+                    <div class="form-nueva-botones">
+                        <button id="btn-confirmar-nueva" class="btn-confirmar-nueva">✅ Agregar</button>
+                        <button id="btn-cancelar-nueva" class="btn-cancelar-nueva">❌ Cancelar</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="editor-stats">
+                <span id="stats-habilitadas">0 habilitadas</span> |
+                <span id="stats-total">0 total</span> |
+                <span id="stats-personalizadas">0 personalizadas</span>
+            </div>
+
+            <div id="lista-palabras" class="lista-palabras">
+                <!-- Las palabras se generan dinámicamente -->
+            </div>
+
+            <div class="modal-footer">
+                <button id="btn-guardar-palabras" class="btn-principal">💾 Guardar Cambios</button>
+                <button id="btn-cancelar-palabras" class="btn-secundario">❌ Cancelar</button>
+            </div>
+        </div>
+    </div>
 
     <script src="game.js"></script>
 </body>

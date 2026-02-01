@@ -126,19 +126,125 @@ const PALABRAS_DIFICIL = [
     { palabra: "suero", imagen: "💉" }
 ];
 
-// Función para obtener palabras según dificultad
+// ==========================================
+// SISTEMA DE PERSONALIZACIÓN DE PALABRAS
+// ==========================================
+
+// Almacena las personalizaciones del usuario
+let palabrasPersonalizadas = {};
+
+// Almacena las palabras nuevas creadas por el usuario
+let palabrasNuevas = [];
+
+// Variable temporal para la imagen de nueva palabra
+let imagenNuevaPalabraTemp = null;
+
+// Cargar personalizaciones desde localStorage
+function cargarPalabrasPersonalizadas() {
+    const guardado = localStorage.getItem('juegoLeerDados_palabras');
+    if (guardado) {
+        palabrasPersonalizadas = JSON.parse(guardado);
+    }
+
+    const nuevasGuardadas = localStorage.getItem('juegoLeerDados_palabrasNuevas');
+    if (nuevasGuardadas) {
+        palabrasNuevas = JSON.parse(nuevasGuardadas);
+    }
+}
+
+// Guardar personalizaciones en localStorage
+function guardarPalabrasPersonalizadas() {
+    localStorage.setItem('juegoLeerDados_palabras', JSON.stringify(palabrasPersonalizadas));
+    localStorage.setItem('juegoLeerDados_palabrasNuevas', JSON.stringify(palabrasNuevas));
+}
+
+// Obtener todas las palabras base (sin modificar) + palabras nuevas del usuario
+function obtenerTodasLasPalabrasBase() {
+    const palabrasBase = [
+        ...PALABRAS_FACIL.map(p => ({ ...p, dificultad: 'facil', esNueva: false })),
+        ...PALABRAS_NORMAL.map(p => ({ ...p, dificultad: 'normal', esNueva: false })),
+        ...PALABRAS_DIFICIL.map(p => ({ ...p, dificultad: 'dificil', esNueva: false }))
+    ];
+
+    // Agregar palabras nuevas creadas por el usuario
+    const palabrasUsuario = palabrasNuevas.map(p => ({
+        palabra: p.palabra,
+        imagen: p.imagen,
+        dificultad: p.dificultad,
+        esNueva: true,
+        id: p.id
+    }));
+
+    return [...palabrasBase, ...palabrasUsuario];
+}
+
+// Obtener palabra personalizada o la original
+function obtenerPalabraPersonalizada(palabraOriginal, imagen) {
+    const key = `${palabraOriginal}_${imagen}`;
+    if (palabrasPersonalizadas[key]) {
+        return {
+            palabra: palabrasPersonalizadas[key].palabraPersonalizada || palabraOriginal,
+            imagen: palabrasPersonalizadas[key].imagenPersonalizada || imagen,
+            imagenOriginal: imagen,
+            esImagenPersonalizada: !!palabrasPersonalizadas[key].imagenPersonalizada,
+            habilitada: palabrasPersonalizadas[key].habilitada !== false,
+            original: palabraOriginal
+        };
+    }
+    return {
+        palabra: palabraOriginal,
+        imagen: imagen,
+        imagenOriginal: imagen,
+        esImagenPersonalizada: false,
+        habilitada: true,
+        original: palabraOriginal
+    };
+}
+
+// Función para obtener palabras según dificultad (MODIFICADA)
 function obtenerPalabrasPorDificultad() {
+    let palabrasBase;
     switch (configuracion.dificultad) {
         case 'facil':
-            return PALABRAS_FACIL;
+            palabrasBase = [...PALABRAS_FACIL];
+            break;
         case 'normal':
-            return [...PALABRAS_FACIL, ...PALABRAS_NORMAL];
+            palabrasBase = [...PALABRAS_FACIL, ...PALABRAS_NORMAL];
+            break;
         case 'dificil':
-            return [...PALABRAS_NORMAL, ...PALABRAS_DIFICIL];
+            palabrasBase = [...PALABRAS_NORMAL, ...PALABRAS_DIFICIL];
+            break;
         case 'mixto':
         default:
-            return [...PALABRAS_FACIL, ...PALABRAS_NORMAL, ...PALABRAS_DIFICIL];
+            palabrasBase = [...PALABRAS_FACIL, ...PALABRAS_NORMAL, ...PALABRAS_DIFICIL];
     }
+
+    // Agregar palabras nuevas del usuario según dificultad
+    const palabrasNuevasFiltradas = palabrasNuevas.filter(p => {
+        if (configuracion.dificultad === 'mixto') return true;
+        if (configuracion.dificultad === 'facil') return p.dificultad === 'facil';
+        if (configuracion.dificultad === 'normal') return p.dificultad === 'facil' || p.dificultad === 'normal';
+        if (configuracion.dificultad === 'dificil') return p.dificultad === 'normal' || p.dificultad === 'dificil';
+        return true;
+    });
+
+    // Combinar palabras base con palabras nuevas
+    const todasLasPalabras = [
+        ...palabrasBase.map(p => obtenerPalabraPersonalizada(p.palabra, p.imagen)),
+        ...palabrasNuevasFiltradas.map(p => ({
+            palabra: p.palabra,
+            imagen: p.imagen,
+            imagenOriginal: p.imagen,
+            esImagenPersonalizada: p.imagen.startsWith('data:'),
+            habilitada: p.habilitada !== false,
+            original: p.palabra,
+            esNueva: true,
+            id: p.id
+        }))
+    ];
+
+    // Filtrar deshabilitadas
+    return todasLasPalabras.filter(p => p.habilitada);
 }
 
 // Estado del juego
@@ -151,7 +257,10 @@ let estadoJuego = {
     palabrasUsadas: [],
     palabraActual: null,
     tiempoRestante: 158,
+    tiempoInicio: 0,           // Para calcular bonus por tiempo
     intervaloTemporizador: null,
+    intervaloAyuda: null,      // Para mostrar ayudas periódicas
+    nivelAyuda: 0,             // 0 = sin ayuda, 1 = primera letra, 2 = dos letras, etc.
     juegoTerminado: false
 };
 
@@ -569,6 +678,41 @@ function reproducirSonidoEmpate() {
     });
 }
 
+// Sonido de ayuda (campanita suave)
+function reproducirSonidoAyuda() {
+    if (!audioContext || !configuracion.sonidosActivados) return;
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    oscillator.frequency.value = 1046.50; // Do alto
+    oscillator.type = 'sine';
+    gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.4);
+}
+
+// Sonido de bonus (cascada de notas)
+function reproducirSonidoBonus() {
+    if (!audioContext || !configuracion.sonidosActivados) return;
+    const notas = [523.25, 659.25, 783.99, 1046.50]; // Do-Mi-Sol-Do
+    notas.forEach((freq, i) => {
+        setTimeout(() => {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            oscillator.frequency.value = freq;
+            oscillator.type = 'sine';
+            gainNode.gain.setValueAtTime(0.25, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.15);
+        }, i * 80);
+    });
+}
+
 // ==========================================
 // SISTEMA DE CONFETI
 // ==========================================
@@ -670,6 +814,130 @@ function detenerTemporizador() {
         clearInterval(estadoJuego.intervaloTemporizador);
         estadoJuego.intervaloTemporizador = null;
     }
+    // Detener también el intervalo de ayuda
+    if (estadoJuego.intervaloAyuda) {
+        clearInterval(estadoJuego.intervaloAyuda);
+        estadoJuego.intervaloAyuda = null;
+    }
+}
+
+// ==========================================
+// SISTEMA DE AYUDA PROGRESIVA
+// ==========================================
+
+function iniciarSistemaAyuda() {
+    estadoJuego.nivelAyuda = 0;
+    actualizarDisplayAyuda();
+
+    // Mostrar ayuda cada 15 segundos
+    const intervaloAyudaSegundos = 15;
+
+    estadoJuego.intervaloAyuda = setInterval(() => {
+        if (estadoJuego.palabraActual && estadoJuego.nivelAyuda < estadoJuego.palabraActual.palabra.length) {
+            estadoJuego.nivelAyuda++;
+            actualizarDisplayAyuda();
+            reproducirSonidoAyuda();
+
+            // Animación de la ayuda
+            const ayudaElement = document.getElementById('ayuda-container');
+            if (ayudaElement) {
+                ayudaElement.classList.add('nueva-ayuda');
+                setTimeout(() => ayudaElement.classList.remove('nueva-ayuda'), 500);
+            }
+        }
+    }, intervaloAyudaSegundos * 1000);
+}
+
+function actualizarDisplayAyuda() {
+    const ayudaContainer = document.getElementById('ayuda-container');
+    if (!ayudaContainer || !estadoJuego.palabraActual) return;
+
+    const palabra = estadoJuego.palabraActual.palabra;
+    let ayudaTexto = '';
+
+    if (estadoJuego.nivelAyuda === 0) {
+        // Sin ayuda - mostrar guiones
+        ayudaTexto = '_ '.repeat(palabra.length).trim();
+    } else {
+        // Mostrar las primeras letras según el nivel de ayuda
+        for (let i = 0; i < palabra.length; i++) {
+            if (i < estadoJuego.nivelAyuda) {
+                ayudaTexto += palabra[i].toUpperCase() + ' ';
+            } else {
+                ayudaTexto += '_ ';
+            }
+        }
+    }
+
+    ayudaContainer.innerHTML = `
+        <div class="ayuda-label">💡 Pista:</div>
+        <div class="ayuda-letras">${ayudaTexto}</div>
+        ${estadoJuego.nivelAyuda > 0 ? `<div class="ayuda-info">Cada ayuda reduce el bonus de tiempo</div>` : ''}
+    `;
+}
+
+// ==========================================
+// SISTEMA DE PUNTOS POR TIEMPO
+// ==========================================
+
+function calcularPuntosPorTiempo() {
+    const tiempoUsado = configuracion.tiempoPorTurno - estadoJuego.tiempoRestante;
+    const tiempoTotal = configuracion.tiempoPorTurno;
+
+    // Penalización por cada nivel de ayuda usado
+    const penalizacionAyuda = estadoJuego.nivelAyuda * 0.2; // 20% menos por cada ayuda
+
+    // Calcular porcentaje de tiempo restante
+    const porcentajeTiempoRestante = estadoJuego.tiempoRestante / tiempoTotal;
+
+    // Bonus base: 1 punto siempre + bonus por tiempo
+    let bonusTiempo = 0;
+
+    if (porcentajeTiempoRestante >= 0.8) {
+        // Muy rápido (80%+ del tiempo restante) = +3 bonus
+        bonusTiempo = 3;
+    } else if (porcentajeTiempoRestante >= 0.6) {
+        // Rápido (60-80% tiempo restante) = +2 bonus
+        bonusTiempo = 2;
+    } else if (porcentajeTiempoRestante >= 0.4) {
+        // Normal (40-60% tiempo restante) = +1 bonus
+        bonusTiempo = 1;
+    }
+    // Si usó más del 60% del tiempo, no hay bonus
+
+    // Aplicar penalización por ayuda
+    bonusTiempo = Math.max(0, Math.floor(bonusTiempo * (1 - penalizacionAyuda)));
+
+    return {
+        puntoBase: 1,
+        bonusTiempo: bonusTiempo,
+        total: 1 + bonusTiempo,
+        tiempoUsado: tiempoUsado,
+        ayudasUsadas: estadoJuego.nivelAyuda
+    };
+}
+
+function mostrarAnimacionPuntos(puntos) {
+    const container = document.querySelector('.marcador');
+    if (!container) return;
+
+    const animacion = document.createElement('div');
+    animacion.className = 'puntos-animacion';
+
+    if (puntos.bonusTiempo > 0) {
+        animacion.innerHTML = `+${puntos.total} <span class="bonus-texto">🚀 ¡Bonus velocidad!</span>`;
+        animacion.classList.add('con-bonus');
+        reproducirSonidoBonus();
+    } else {
+        animacion.textContent = `+${puntos.total}`;
+    }
+
+    container.appendChild(animacion);
+
+    // Remover después de la animación
+    setTimeout(() => {
+        animacion.remove();
+    }, 2000);
 }
 
 function actualizarDisplayTemporizador() {
@@ -737,19 +1005,33 @@ function iniciarRonda() {
     document.getElementById('nombre-jugador-actual').textContent = `🎮 ${jugador.nombre}`;
 
     estadoJuego.palabraActual = obtenerPalabraAleatoria();
+    estadoJuego.tiempoInicio = Date.now(); // Guardar tiempo de inicio para calcular bonus
+    estadoJuego.nivelAyuda = 0; // Resetear nivel de ayuda
 
     const imgElement = document.getElementById('imagen-palabra');
-    imgElement.style.display = 'none';
-
     const container = document.querySelector('.imagen-container');
     let emojiElement = container.querySelector('.emoji-display');
-    if (!emojiElement) {
-        emojiElement = document.createElement('span');
-        emojiElement.className = 'emoji-display';
-        emojiElement.style.fontSize = '120px';
-        container.appendChild(emojiElement);
+
+    // Verificar si es una imagen personalizada (base64) o un emoji
+    if (estadoJuego.palabraActual.esImagenPersonalizada) {
+        // Mostrar imagen personalizada
+        imgElement.src = estadoJuego.palabraActual.imagen;
+        imgElement.style.display = 'block';
+        if (emojiElement) {
+            emojiElement.style.display = 'none';
+        }
+    } else {
+        // Mostrar emoji
+        imgElement.style.display = 'none';
+        if (!emojiElement) {
+            emojiElement = document.createElement('span');
+            emojiElement.className = 'emoji-display';
+            emojiElement.style.fontSize = '120px';
+            container.appendChild(emojiElement);
+        }
+        emojiElement.style.display = 'block';
+        emojiElement.textContent = estadoJuego.palabraActual.imagen;
     }
-    emojiElement.textContent = estadoJuego.palabraActual.imagen;
 
     document.getElementById('area-respuesta').classList.add('oculto');
     document.getElementById('btn-mostrar-respuesta').style.display = 'block';
@@ -757,6 +1039,7 @@ function iniciarRonda() {
     actualizarMarcador();
     mostrarPantalla('pantalla-juego');
     iniciarTemporizador();
+    iniciarSistemaAyuda(); // Iniciar sistema de ayuda progresiva
 }
 
 function mostrarRespuesta() {
@@ -772,12 +1055,23 @@ function mostrarRespuesta() {
 
 function registrarAcierto() {
     reproducirSonidoAcierto();
+    detenerTemporizador(); // Detener temporizador y sistema de ayuda
 
     const jugador = obtenerJugadorActual();
-    jugador.puntos++;
+
+    // Calcular puntos con bonus por tiempo
+    const puntos = calcularPuntosPorTiempo();
+    jugador.puntos += puntos.total;
+
+    // Mostrar animación de puntos
+    mostrarAnimacionPuntos(puntos);
+
     actualizarMarcador();
 
-    siguienteTurno();
+    // Pequeño delay para que se vea la animación
+    setTimeout(() => {
+        siguienteTurno();
+    }, puntos.bonusTiempo > 0 ? 1500 : 500);
 }
 
 function registrarFallo() {
@@ -1030,4 +1324,545 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('sonidos-activados').addEventListener('change', () => {
         guardarConfiguracion();
     });
+
+    // ==========================================
+    // EVENT LISTENERS - EDITOR DE PALABRAS
+    // ==========================================
+
+    // Cargar palabras personalizadas al iniciar
+    cargarPalabrasPersonalizadas();
+
+    // Botón abrir editor de palabras
+    document.getElementById('btn-abrir-editor').addEventListener('click', () => {
+        reproducirSonidoClick();
+        abrirEditorPalabras();
+    });
+
+    // Botón cerrar modal
+    document.getElementById('btn-cerrar-modal').addEventListener('click', () => {
+        reproducirSonidoClick();
+        cerrarEditorPalabras();
+    });
+
+    // Cerrar modal al hacer clic fuera
+    document.getElementById('modal-editor').addEventListener('click', (e) => {
+        if (e.target.id === 'modal-editor') {
+            cerrarEditorPalabras();
+        }
+    });
+
+    // Búsqueda de palabras
+    document.getElementById('buscar-palabra').addEventListener('input', (e) => {
+        filtrarListaPalabras();
+    });
+
+    // Filtros de dificultad
+    document.querySelectorAll('.filtro-dificultad .filtro-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.filtro-dificultad .filtro-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            filtrarListaPalabras();
+        });
+    });
+
+    // Filtros de estado
+    document.querySelectorAll('.filtro-estado .filtro-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.filtro-estado .filtro-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            filtrarListaPalabras();
+        });
+    });
+
+    // Acciones masivas
+    document.getElementById('btn-habilitar-todas').addEventListener('click', () => {
+        habilitarTodasLasPalabras(true);
+    });
+
+    document.getElementById('btn-deshabilitar-todas').addEventListener('click', () => {
+        habilitarTodasLasPalabras(false);
+    });
+
+    document.getElementById('btn-restaurar-palabras').addEventListener('click', () => {
+        if (confirm('¿Restaurar todas las palabras a su estado original? Se perderán todos los cambios y las palabras personalizadas.')) {
+            palabrasPersonalizadas = {};
+            palabrasNuevas = [];
+            renderizarListaPalabras();
+            actualizarEstadisticasPalabras();
+        }
+    });
+
+    // Guardar cambios de palabras
+    document.getElementById('btn-guardar-palabras').addEventListener('click', () => {
+        reproducirSonidoPop();
+        guardarPalabrasPersonalizadas();
+        cerrarEditorPalabras();
+    });
+
+    // Cancelar cambios de palabras
+    document.getElementById('btn-cancelar-palabras').addEventListener('click', () => {
+        reproducirSonidoClick();
+        cargarPalabrasPersonalizadas(); // Recargar desde localStorage
+        cerrarEditorPalabras();
+    });
+
+    // ==========================================
+    // EVENT LISTENERS - NUEVA PALABRA
+    // ==========================================
+
+    // Botón nueva palabra
+    document.getElementById('btn-nueva-palabra').addEventListener('click', () => {
+        reproducirSonidoClick();
+        mostrarFormularioNuevaPalabra();
+    });
+
+    // Click en preview de imagen para seleccionar archivo
+    document.getElementById('preview-nueva-imagen').addEventListener('click', () => {
+        document.getElementById('input-nueva-imagen').click();
+    });
+
+    // Cuando se selecciona una imagen
+    document.getElementById('input-nueva-imagen').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            if (file.size > 500 * 1024) {
+                alert('La imagen es muy grande. Por favor usa una imagen menor a 500KB.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                imagenNuevaPalabraTemp = event.target.result;
+                const preview = document.getElementById('preview-nueva-imagen');
+                preview.innerHTML = `<img src="${imagenNuevaPalabraTemp}" alt="Preview">`;
+                reproducirSonidoPop();
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Botón confirmar nueva palabra
+    document.getElementById('btn-confirmar-nueva').addEventListener('click', () => {
+        agregarNuevaPalabra();
+    });
+
+    // Botón cancelar nueva palabra
+    document.getElementById('btn-cancelar-nueva').addEventListener('click', () => {
+        reproducirSonidoClick();
+        ocultarFormularioNuevaPalabra();
+    });
+
+    // Enter en input de nueva palabra
+    document.getElementById('input-nueva-palabra').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            agregarNuevaPalabra();
+        }
+    });
 });
+
+// ==========================================
+// FUNCIONES DEL EDITOR DE PALABRAS
+// ==========================================
+
+function abrirEditorPalabras() {
+    document.getElementById('modal-editor').classList.remove('oculto');
+    document.getElementById('buscar-palabra').value = '';
+
+    // Resetear filtros
+    document.querySelectorAll('.filtro-dificultad .filtro-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector('.filtro-dificultad .filtro-btn[data-filtro="todas"]').classList.add('active');
+    document.querySelectorAll('.filtro-estado .filtro-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector('.filtro-estado .filtro-btn[data-estado="todas"]').classList.add('active');
+
+    renderizarListaPalabras();
+    actualizarEstadisticasPalabras();
+}
+
+function cerrarEditorPalabras() {
+    document.getElementById('modal-editor').classList.add('oculto');
+}
+
+function renderizarListaPalabras() {
+    const lista = document.getElementById('lista-palabras');
+    const palabras = obtenerTodasLasPalabrasBase();
+
+    lista.innerHTML = palabras.map((p, index) => {
+        const esNueva = p.esNueva || false;
+        const key = `${p.palabra}_${p.imagen}`;
+        const personalizada = palabrasPersonalizadas[key] || {};
+
+        // Para palabras nuevas, no aplicamos personalizaciones adicionales
+        const palabraActual = esNueva ? p.palabra : (personalizada.palabraPersonalizada || p.palabra);
+        const habilitada = esNueva ? (p.habilitada !== false) : (personalizada.habilitada !== false);
+        const modificada = !esNueva && personalizada.palabraPersonalizada && personalizada.palabraPersonalizada !== p.palabra;
+
+        // Para palabras nuevas, la imagen ya puede ser base64
+        const imagenPersonalizada = esNueva ? null : personalizada.imagenPersonalizada;
+        const tieneImagenPersonalizada = esNueva ? p.imagen.startsWith('data:') : !!imagenPersonalizada;
+
+        // Determinar qué mostrar: imagen personalizada o emoji original
+        let contenidoImagen;
+        if (esNueva && p.imagen.startsWith('data:')) {
+            contenidoImagen = `<img src="${p.imagen}" alt="${p.palabra}" class="imagen-personalizada-preview">`;
+        } else if (tieneImagenPersonalizada) {
+            contenidoImagen = `<img src="${imagenPersonalizada}" alt="${p.palabra}" class="imagen-personalizada-preview">`;
+        } else {
+            contenidoImagen = p.imagen;
+        }
+
+        return `
+            <div class="palabra-item ${habilitada ? '' : 'deshabilitada'} ${esNueva ? 'palabra-nueva' : ''}"
+                 data-index="${index}"
+                 data-dificultad="${p.dificultad}"
+                 data-original="${p.palabra}"
+                 data-imagen="${p.imagen}"
+                 data-es-nueva="${esNueva}"
+                 data-id="${p.id || ''}">
+                <div class="palabra-emoji-container">
+                    <div class="palabra-emoji ${tieneImagenPersonalizada ? 'con-imagen' : ''}">${contenidoImagen}</div>
+                    ${!esNueva ? `<button class="btn-cambiar-imagen" title="Cambiar imagen">📷</button>` : ''}
+                    ${!esNueva && tieneImagenPersonalizada ? `<button class="btn-quitar-imagen" title="Volver al emoji original">❌</button>` : ''}
+                </div>
+                <div class="palabra-contenido">
+                    ${esNueva ? `
+                        <div class="palabra-texto-nueva">${palabraActual}</div>
+                    ` : `
+                        <input type="text"
+                               class="palabra-input"
+                               value="${palabraActual}"
+                               data-original="${p.palabra}"
+                               placeholder="${p.palabra}">
+                    `}
+                    <div class="palabra-info">
+                        ${esNueva ? `
+                            <span class="etiqueta-nueva">⭐ Palabra personalizada</span>
+                        ` : `
+                            <span class="palabra-original ${modificada ? 'modificada' : ''}">
+                                Original: ${p.palabra}
+                            </span>
+                        `}
+                        <span class="palabra-dificultad dificultad-${p.dificultad}">
+                            ${p.dificultad === 'facil' ? '🌱 Fácil' : p.dificultad === 'normal' ? '🌿 Normal' : '🌳 Difícil'}
+                        </span>
+                        ${!esNueva && tieneImagenPersonalizada ? '<span class="imagen-modificada">📷 Imagen personalizada</span>' : ''}
+                    </div>
+                </div>
+                <div class="palabra-acciones">
+                    ${esNueva ? `
+                        <button class="btn-eliminar-palabra" title="Eliminar palabra">🗑️</button>
+                    ` : `
+                        <label class="toggle-palabra">
+                            <input type="checkbox" class="checkbox-habilitar" ${habilitada ? 'checked' : ''}>
+                            <span class="toggle-slider-mini"></span>
+                        </label>
+                        <button class="btn-restaurar-palabra" title="Restaurar original">🔄</button>
+                    `}
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    // Agregar event listeners a los elementos generados
+    agregarEventListenersPalabras();
+}
+
+function agregarEventListenersPalabras() {
+    // Checkboxes de habilitar/deshabilitar
+    document.querySelectorAll('.checkbox-habilitar').forEach(checkbox => {
+        checkbox.addEventListener('change', (e) => {
+            const item = e.target.closest('.palabra-item');
+            const original = item.dataset.original;
+            const imagen = item.dataset.imagen;
+            const key = `${original}_${imagen}`;
+
+            if (!palabrasPersonalizadas[key]) {
+                palabrasPersonalizadas[key] = {};
+            }
+            palabrasPersonalizadas[key].habilitada = e.target.checked;
+
+            item.classList.toggle('deshabilitada', !e.target.checked);
+            actualizarEstadisticasPalabras();
+        });
+    });
+
+    // Inputs de palabras personalizadas
+    document.querySelectorAll('.palabra-input').forEach(input => {
+        input.addEventListener('change', (e) => {
+            const item = e.target.closest('.palabra-item');
+            const original = item.dataset.original;
+            const imagen = item.dataset.imagen;
+            const key = `${original}_${imagen}`;
+            const nuevoValor = e.target.value.trim().toLowerCase();
+
+            if (!palabrasPersonalizadas[key]) {
+                palabrasPersonalizadas[key] = { habilitada: true };
+            }
+
+            if (nuevoValor && nuevoValor !== original) {
+                palabrasPersonalizadas[key].palabraPersonalizada = nuevoValor;
+                item.querySelector('.palabra-original').classList.add('modificada');
+            } else {
+                delete palabrasPersonalizadas[key].palabraPersonalizada;
+                item.querySelector('.palabra-original').classList.remove('modificada');
+                e.target.value = original;
+            }
+        });
+    });
+
+    // Botones de restaurar individual
+    document.querySelectorAll('.btn-restaurar-palabra').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const item = e.target.closest('.palabra-item');
+            const original = item.dataset.original;
+            const imagen = item.dataset.imagen;
+            const key = `${original}_${imagen}`;
+
+            // Restaurar valores
+            delete palabrasPersonalizadas[key];
+
+            // Actualizar UI - re-renderizar la lista para mostrar el emoji original
+            renderizarListaPalabras();
+            actualizarEstadisticasPalabras();
+        });
+    });
+
+    // Botones de cambiar imagen
+    document.querySelectorAll('.btn-cambiar-imagen').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const item = e.target.closest('.palabra-item');
+            const original = item.dataset.original;
+            const imagen = item.dataset.imagen;
+
+            // Crear input file temporal
+            const inputFile = document.createElement('input');
+            inputFile.type = 'file';
+            inputFile.accept = 'image/png, image/jpeg, image/gif, image/webp';
+
+            inputFile.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    // Verificar tamaño (máximo 500KB para no saturar localStorage)
+                    if (file.size > 500 * 1024) {
+                        alert('La imagen es muy grande. Por favor usa una imagen menor a 500KB.');
+                        return;
+                    }
+
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const base64 = e.target.result;
+                        const key = `${original}_${imagen}`;
+
+                        if (!palabrasPersonalizadas[key]) {
+                            palabrasPersonalizadas[key] = { habilitada: true };
+                        }
+                        palabrasPersonalizadas[key].imagenPersonalizada = base64;
+
+                        // Re-renderizar para mostrar la nueva imagen
+                        renderizarListaPalabras();
+                        reproducirSonidoPop();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            inputFile.click();
+        });
+    });
+
+    // Botones de quitar imagen personalizada
+    document.querySelectorAll('.btn-quitar-imagen').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const item = e.target.closest('.palabra-item');
+            const original = item.dataset.original;
+            const imagen = item.dataset.imagen;
+            const key = `${original}_${imagen}`;
+
+            if (palabrasPersonalizadas[key]) {
+                delete palabrasPersonalizadas[key].imagenPersonalizada;
+            }
+
+            // Re-renderizar para mostrar el emoji original
+            renderizarListaPalabras();
+        });
+    });
+
+    // Botones de eliminar palabra personalizada
+    document.querySelectorAll('.btn-eliminar-palabra').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const item = e.target.closest('.palabra-item');
+            const id = item.dataset.id;
+
+            if (confirm('¿Eliminar esta palabra personalizada?')) {
+                // Eliminar del array de palabras nuevas
+                palabrasNuevas = palabrasNuevas.filter(p => p.id !== id);
+
+                // Re-renderizar
+                renderizarListaPalabras();
+                actualizarEstadisticasPalabras();
+                reproducirSonidoClick();
+            }
+        });
+    });
+}
+
+function filtrarListaPalabras() {
+    const busqueda = document.getElementById('buscar-palabra').value.toLowerCase();
+    const filtroDificultad = document.querySelector('.filtro-dificultad .filtro-btn.active')?.dataset.filtro || 'todas';
+    const filtroEstado = document.querySelector('.filtro-estado .filtro-btn.active')?.dataset.estado || 'todas';
+
+    document.querySelectorAll('.palabra-item').forEach(item => {
+        const original = item.dataset.original.toLowerCase();
+        const esNueva = item.dataset.esNueva === 'true';
+        const palabraInput = item.querySelector('.palabra-input');
+        const palabraActual = palabraInput ? palabraInput.value.toLowerCase() : original;
+        const dificultad = item.dataset.dificultad;
+        const checkboxHabilitar = item.querySelector('.checkbox-habilitar');
+        const habilitada = esNueva ? true : (checkboxHabilitar ? checkboxHabilitar.checked : true);
+
+        let mostrar = true;
+
+        // Filtro de búsqueda
+        if (busqueda && !original.includes(busqueda) && !palabraActual.includes(busqueda)) {
+            mostrar = false;
+        }
+
+        // Filtro de dificultad
+        if (filtroDificultad !== 'todas' && dificultad !== filtroDificultad) {
+            mostrar = false;
+        }
+
+        // Filtro de estado
+        if (filtroEstado === 'habilitadas' && !habilitada) {
+            mostrar = false;
+        } else if (filtroEstado === 'deshabilitadas' && habilitada) {
+            mostrar = false;
+        }
+
+        item.style.display = mostrar ? 'flex' : 'none';
+    });
+}
+
+function habilitarTodasLasPalabras(habilitar) {
+    document.querySelectorAll('.palabra-item').forEach(item => {
+        // Solo afectar a las visibles (filtradas)
+        if (item.style.display !== 'none') {
+            const original = item.dataset.original;
+            const imagen = item.dataset.imagen;
+            const key = `${original}_${imagen}`;
+
+            if (!palabrasPersonalizadas[key]) {
+                palabrasPersonalizadas[key] = {};
+            }
+            palabrasPersonalizadas[key].habilitada = habilitar;
+
+            item.querySelector('.checkbox-habilitar').checked = habilitar;
+            item.classList.toggle('deshabilitada', !habilitar);
+        }
+    });
+
+    actualizarEstadisticasPalabras();
+}
+
+function actualizarEstadisticasPalabras() {
+    const todas = document.querySelectorAll('.palabra-item');
+    let habilitadas = 0;
+    let personalizadas = 0;
+
+    todas.forEach(item => {
+        const esNueva = item.dataset.esNueva === 'true';
+        const checkbox = item.querySelector('.checkbox-habilitar');
+
+        if (esNueva) {
+            habilitadas++; // Las palabras nuevas siempre están habilitadas
+            personalizadas++;
+        } else if (checkbox && checkbox.checked) {
+            habilitadas++;
+        }
+    });
+
+    document.getElementById('stats-habilitadas').textContent = `${habilitadas} habilitadas`;
+    document.getElementById('stats-total').textContent = `${todas.length} total`;
+    document.getElementById('stats-personalizadas').textContent = `${personalizadas} personalizadas`;
+}
+
+// ==========================================
+// FUNCIONES PARA NUEVA PALABRA
+// ==========================================
+
+function mostrarFormularioNuevaPalabra() {
+    const form = document.getElementById('form-nueva-palabra');
+    form.classList.remove('oculto');
+
+    // Limpiar formulario
+    document.getElementById('input-nueva-palabra').value = '';
+    document.getElementById('select-nueva-dificultad').value = 'normal';
+    document.getElementById('preview-nueva-imagen').innerHTML = `
+        <span>📷</span>
+        <small>Clic para agregar imagen</small>
+    `;
+    imagenNuevaPalabraTemp = null;
+    document.getElementById('input-nueva-imagen').value = '';
+
+    // Focus en el input
+    setTimeout(() => {
+        document.getElementById('input-nueva-palabra').focus();
+    }, 100);
+}
+
+function ocultarFormularioNuevaPalabra() {
+    const form = document.getElementById('form-nueva-palabra');
+    form.classList.add('oculto');
+    imagenNuevaPalabraTemp = null;
+}
+
+function agregarNuevaPalabra() {
+    const palabra = document.getElementById('input-nueva-palabra').value.trim().toLowerCase();
+    const dificultad = document.getElementById('select-nueva-dificultad').value;
+
+    // Validaciones
+    if (!palabra) {
+        alert('Por favor escribe una palabra');
+        document.getElementById('input-nueva-palabra').focus();
+        return;
+    }
+
+    if (palabra.length < 2) {
+        alert('La palabra debe tener al menos 2 letras');
+        return;
+    }
+
+    if (!imagenNuevaPalabraTemp) {
+        alert('Por favor selecciona una imagen para la palabra');
+        return;
+    }
+
+    // Verificar que no exista ya
+    const todasLasPalabras = obtenerTodasLasPalabrasBase();
+    const existe = todasLasPalabras.some(p => p.palabra.toLowerCase() === palabra);
+    if (existe) {
+        alert('Esta palabra ya existe en el juego');
+        return;
+    }
+
+    // Crear nueva palabra
+    const nuevaPalabra = {
+        id: 'nueva_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+        palabra: palabra,
+        imagen: imagenNuevaPalabraTemp,
+        dificultad: dificultad,
+        habilitada: true
+    };
+
+    // Agregar al array
+    palabrasNuevas.push(nuevaPalabra);
+
+    // Ocultar formulario y re-renderizar
+    ocultarFormularioNuevaPalabra();
+    renderizarListaPalabras();
+    actualizarEstadisticasPalabras();
+    reproducirSonidoPop();
+
+    // Scroll al final de la lista para ver la nueva palabra
+    const lista = document.getElementById('lista-palabras');
+    lista.scrollTop = lista.scrollHeight;
+}
