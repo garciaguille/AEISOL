@@ -1958,6 +1958,9 @@ function abrirEditorPalabras() {
     document.getElementById('modal-editor').classList.remove('oculto');
     document.getElementById('buscar-palabra').value = '';
 
+    // Bloquear scroll del body
+    document.body.classList.add('modal-abierto');
+
     // Resetear filtros
     document.querySelectorAll('.filtro-dificultad .filtro-btn').forEach(b => b.classList.remove('active'));
     document.querySelector('.filtro-dificultad .filtro-btn[data-filtro="todas"]').classList.add('active');
@@ -1970,6 +1973,8 @@ function abrirEditorPalabras() {
 
 function cerrarEditorPalabras() {
     document.getElementById('modal-editor').classList.add('oculto');
+    // Restaurar scroll del body
+    document.body.classList.remove('modal-abierto');
 }
 
 function renderizarListaPalabras() {

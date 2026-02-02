@@ -2233,3 +2233,15 @@ body {
         grid-template-columns: 1fr;
     }
 }
+
+/* ==========================================
+   FIX: Bloquear scroll cuando modal está abierto
+   ========================================== */
+
+body.modal-abierto {
+    overflow: hidden;
+}
+
+.modal-overlay {
+    overflow-y: auto;
+}
