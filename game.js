@@ -1241,8 +1241,10 @@ function iniciarSistemaAyuda() {
     estadoJuego.nivelAyuda = 0;
     actualizarDisplayAyuda();
 
-    // Mostrar ayuda cada 15 segundos
-    const intervaloAyudaSegundos = 15;
+    // Calcular intervalo de ayuda dinámico: tiempo total / largo de palabra
+    // Ejemplo: 60 segundos / 4 letras = 15 segundos por ayuda
+    const largoPalabra = estadoJuego.palabraActual.palabra.length;
+    const intervaloAyudaSegundos = Math.floor(configuracion.tiempoPorTurno / largoPalabra);
 
     estadoJuego.intervaloAyuda = setInterval(() => {
         if (estadoJuego.palabraActual && estadoJuego.nivelAyuda < estadoJuego.palabraActual.palabra.length) {
