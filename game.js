@@ -1593,6 +1593,30 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 800);
     });
 
+    // ==========================================
+    // SELECCIÓN DE MODO DE JUEGO
+    // ==========================================
+
+    // Modo un jugador (solitario)
+    document.getElementById('btn-modo-solitario').addEventListener('click', () => {
+        reproducirSonidoClick();
+        configuracion.modoJuego = 'un-jugador';
+        document.querySelector('.seleccion-modo').classList.add('oculto');
+        document.getElementById('formulario-registro').classList.remove('oculto');
+        document.getElementById('titulo-registro').textContent = '📝 Ingresa tu nombre';
+        document.getElementById('nombre-jugador1').focus();
+    });
+
+    // Modo dos jugadores
+    document.getElementById('btn-modo-dos-jugadores').addEventListener('click', () => {
+        reproducirSonidoClick();
+        configuracion.modoJuego = 'dos-jugadores';
+        document.querySelector('.seleccion-modo').classList.add('oculto');
+        document.getElementById('formulario-registro').classList.remove('oculto');
+        document.getElementById('titulo-registro').textContent = '📝 Registro de Jugadores';
+        document.getElementById('nombre-jugador1').focus();
+    });
+
     // Confirmar jugador 1
     document.getElementById('btn-confirmar1').addEventListener('click', () => {
         const nombre = document.getElementById('nombre-jugador1').value.trim();
@@ -1601,8 +1625,21 @@ document.addEventListener('DOMContentLoaded', () => {
             estadoJuego.jugador1.nombre = nombre;
             document.getElementById('nombre1-display').textContent = nombre;
             document.getElementById('registro-jugador1').classList.add('oculto');
-            document.getElementById('registro-jugador2').classList.remove('oculto');
-            document.getElementById('nombre-jugador2').focus();
+
+            // Si es modo un jugador, ir directo al juego
+            if (configuracion.modoJuego === 'un-jugador') {
+                estadoJuego.jugador2.nombre = "CPU"; // Jugador dummy
+                document.getElementById('jugadores-registrados').classList.remove('oculto');
+                document.getElementById('jugador2-display-container').style.display = 'none';
+
+                setTimeout(() => {
+                    mostrarPantallaTurno();
+                }, 1000);
+            } else {
+                // Modo dos jugadores
+                document.getElementById('registro-jugador2').classList.remove('oculto');
+                document.getElementById('nombre-jugador2').focus();
+            }
         } else {
             reproducirSonidoError();
             alert('Por favor, ingresa un nombre');

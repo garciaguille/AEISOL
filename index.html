@@ -243,13 +243,29 @@
 
         <!-- Pantalla de Registro de Jugadores -->
         <div id="pantalla-registro" class="pantalla">
-            <h2>📝 Registro de Jugadores</h2>
+            <h2>📝 ¿Cómo quieres jugar?</h2>
 
-            <div id="registro-jugador1" class="registro-form">
-                <h3>👤 Jugador 1</h3>
-                <input type="text" id="nombre-jugador1" placeholder="Escribe tu nombre..." maxlength="15">
-                <button id="btn-confirmar1" class="btn-confirmar">✓ Confirmar</button>
+            <div class="seleccion-modo">
+                <button id="btn-modo-solitario" class="btn-modo">
+                    <div class="modo-icono">👤</div>
+                    <div class="modo-nombre">Un Jugador</div>
+                    <div class="modo-desc">Desbloquea logros jugando solo</div>
+                </button>
+                <button id="btn-modo-dos-jugadores" class="btn-modo">
+                    <div class="modo-icono">👥</div>
+                    <div class="modo-nombre">Dos Jugadores</div>
+                    <div class="modo-desc">Compite con un amigo</div>
+                </button>
             </div>
+
+            <div id="formulario-registro" class="oculto">
+                <h2 id="titulo-registro">📝 Registro de Jugadores</h2>
+
+                <div id="registro-jugador1" class="registro-form">
+                    <h3>👤 Jugador 1</h3>
+                    <input type="text" id="nombre-jugador1" placeholder="Escribe tu nombre..." maxlength="15">
+                    <button id="btn-confirmar1" class="btn-confirmar">✓ Confirmar</button>
+                </div>
 
             <div id="registro-jugador2" class="registro-form oculto">
                 <h3>👤 Jugador 2</h3>
@@ -259,8 +275,10 @@
 
             <div id="jugadores-registrados" class="jugadores-lista oculto">
                 <p>✅ <span id="nombre1-display"></span></p>
-                <p>✅ <span id="nombre2-display"></span></p>
+                <p id="jugador2-display-container">✅ <span id="nombre2-display"></span></p>
             </div>
+
+            </div> <!-- Fin formulario-registro -->
         </div>
 
         <!-- Pantalla de Anuncio de Turno -->
