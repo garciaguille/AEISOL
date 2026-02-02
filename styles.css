@@ -1869,3 +1869,312 @@ body {
         justify-content: center;
     }
 }
+
+/* ==========================================
+   PANTALLA DE LOGROS
+   ========================================== */
+
+.botones-inicio {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 15px;
+}
+
+.btn-secundario-inicio {
+    background: linear-gradient(145deg, #a29bfe, #6c5ce7);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    font-size: 1.1em;
+    font-family: inherit;
+    border-radius: 30px;
+    cursor: pointer;
+    box-shadow: 0 5px 20px rgba(108, 92, 231, 0.4);
+    transition: all 0.3s ease;
+}
+
+.btn-secundario-inicio:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 8px 30px rgba(108, 92, 231, 0.6);
+}
+
+#pantalla-logros h2 {
+    color: #6c5ce7;
+    margin-bottom: 20px;
+    animation: pulse 2s ease infinite;
+}
+
+.estadisticas-resumen {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 20px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.stat-numero {
+    font-size: 2em;
+    font-weight: bold;
+    color: #6c5ce7;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    font-size: 0.9em;
+    color: #636e72;
+}
+
+.progreso-general {
+    margin-bottom: 25px;
+}
+
+.progreso-barra {
+    width: 100%;
+    height: 30px;
+    background: #e9ecef;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.progreso-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #6c5ce7, #a29bfe);
+    transition: width 1s ease;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 10px;
+    color: white;
+    font-weight: bold;
+}
+
+.progreso-texto {
+    text-align: center;
+    margin-top: 8px;
+    color: #636e72;
+    font-size: 0.9em;
+}
+
+.filtros-logros {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.filtro-logro-btn {
+    background: white;
+    border: 2px solid #dfe6e9;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 0.9em;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.filtro-logro-btn:hover {
+    border-color: #a29bfe;
+    transform: scale(1.05);
+}
+
+.filtro-logro-btn.active {
+    background: linear-gradient(145deg, #6c5ce7, #a29bfe);
+    color: white;
+    border-color: #6c5ce7;
+}
+
+.lista-logros {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 15px;
+    margin-bottom: 25px;
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+.logro-card {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    border: 3px solid transparent;
+}
+
+.logro-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.logro-card.desbloqueado {
+    border-color: #00b894;
+    background: linear-gradient(135deg, #ffffff 0%, #d5f5e3 100%);
+}
+
+.logro-card.bloqueado {
+    opacity: 0.6;
+    filter: grayscale(0.8);
+}
+
+.logro-icono-grande {
+    font-size: 3.5em;
+    min-width: 70px;
+    text-align: center;
+}
+
+.logro-detalles {
+    flex: 1;
+}
+
+.logro-nombre-card {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #2d3436;
+    margin-bottom: 5px;
+}
+
+.logro-descripcion-card {
+    font-size: 0.9em;
+    color: #636e72;
+    margin-bottom: 8px;
+}
+
+.logro-bloqueado-texto {
+    font-size: 0.85em;
+    color: #e17055;
+    font-weight: bold;
+}
+
+.logro-desbloqueado-marca {
+    font-size: 0.85em;
+    color: #00b894;
+    font-weight: bold;
+}
+
+/* ==========================================
+   NOTIFICACIONES DE LOGROS
+   ========================================== */
+
+.notificacion-logro {
+    position: fixed;
+    top: 20px;
+    right: -400px;
+    z-index: 3000;
+    transition: right 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.notificacion-logro.mostrar {
+    right: 20px;
+}
+
+.logro-desbloqueado {
+    background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+    border: 3px solid #f39c12;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(243, 156, 18, 0.6);
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    min-width: 320px;
+    animation: logroShake 0.5s ease;
+}
+
+@keyframes logroShake {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-3deg); }
+    75% { transform: rotate(3deg); }
+}
+
+.logro-desbloqueado .logro-icono {
+    font-size: 4em;
+    animation: logroZoom 0.5s ease;
+}
+
+@keyframes logroZoom {
+    0% { transform: scale(0); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.logro-desbloqueado .logro-info {
+    flex: 1;
+}
+
+.logro-desbloqueado .logro-titulo {
+    font-size: 0.9em;
+    color: #e17055;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+}
+
+.logro-desbloqueado .logro-nombre {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #2d3436;
+    margin-bottom: 5px;
+}
+
+.logro-desbloqueado .logro-descripcion {
+    font-size: 0.9em;
+    color: #636e72;
+}
+
+/* Responsive para logros */
+@media (max-width: 500px) {
+    .estadisticas-resumen {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .lista-logros {
+        grid-template-columns: 1fr;
+        max-height: 350px;
+    }
+
+    .notificacion-logro {
+        right: -350px;
+        left: 10px;
+        top: 10px;
+    }
+
+    .notificacion-logro.mostrar {
+        right: auto;
+    }
+
+    .logro-desbloqueado {
+        min-width: auto;
+        max-width: calc(100vw - 20px);
+    }
+
+    .filtros-logros {
+        gap: 5px;
+    }
+
+    .filtro-logro-btn {
+        font-size: 0.8em;
+        padding: 6px 10px;
+    }
+}

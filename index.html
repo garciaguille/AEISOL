@@ -37,7 +37,57 @@
                 <span class="dado">I</span>
             </div>
             <button id="btn-comenzar" class="btn-principal">🎮 Comenzar a Jugar</button>
-            <button id="btn-config" class="btn-config">⚙️ Configuración</button>
+            <div class="botones-inicio">
+                <button id="btn-logros" class="btn-secundario-inicio">🏆 Logros</button>
+                <button id="btn-config" class="btn-config">⚙️ Configuración</button>
+            </div>
+        </div>
+
+        <!-- Pantalla de Logros -->
+        <div id="pantalla-logros" class="pantalla">
+            <h2>🏆 Tus Logros</h2>
+
+            <div class="estadisticas-resumen">
+                <div class="stat-card">
+                    <div class="stat-numero" id="stat-palabras">0</div>
+                    <div class="stat-label">Palabras Correctas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-numero" id="stat-precision">0%</div>
+                    <div class="stat-label">Precisión</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-numero" id="stat-racha">0</div>
+                    <div class="stat-label">Racha Máxima</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-numero" id="stat-logros-desbloqueados">0/26</div>
+                    <div class="stat-label">Logros</div>
+                </div>
+            </div>
+
+            <div class="progreso-general">
+                <div class="progreso-barra">
+                    <div class="progreso-fill" id="progreso-fill"></div>
+                </div>
+                <div class="progreso-texto" id="progreso-texto">0% completado</div>
+            </div>
+
+            <div class="filtros-logros">
+                <button class="filtro-logro-btn active" data-categoria="todos">Todos</button>
+                <button class="filtro-logro-btn" data-categoria="primeros-pasos">🌱 Inicio</button>
+                <button class="filtro-logro-btn" data-categoria="rachas">🔥 Rachas</button>
+                <button class="filtro-logro-btn" data-categoria="velocidad">⚡ Velocidad</button>
+                <button class="filtro-logro-btn" data-categoria="maestria">📚 Maestría</button>
+                <button class="filtro-logro-btn" data-categoria="dedicacion">📅 Dedicación</button>
+                <button class="filtro-logro-btn" data-categoria="especiales">🌟 Especiales</button>
+            </div>
+
+            <div id="lista-logros" class="lista-logros">
+                <!-- Los logros se generarán dinámicamente -->
+            </div>
+
+            <button id="btn-volver-logros" class="btn-secundario">← Volver</button>
         </div>
 
         <!-- Pantalla de Configuración (Para Padres) -->
