@@ -37,7 +37,57 @@
                 <span class="dado">I</span>
             </div>
             <button id="btn-comenzar" class="btn-principal">🎮 Comenzar a Jugar</button>
-            <button id="btn-config" class="btn-config">⚙️ Configuración</button>
+            <div class="botones-inicio">
+                <button id="btn-logros" class="btn-secundario-inicio">🏆 Logros</button>
+                <button id="btn-config" class="btn-config">⚙️ Configuración</button>
+            </div>
+        </div>
+
+        <!-- Pantalla de Logros -->
+        <div id="pantalla-logros" class="pantalla">
+            <h2>🏆 Tus Logros</h2>
+
+            <div class="estadisticas-resumen">
+                <div class="stat-card">
+                    <div class="stat-numero" id="stat-palabras">0</div>
+                    <div class="stat-label">Palabras Correctas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-numero" id="stat-precision">0%</div>
+                    <div class="stat-label">Precisión</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-numero" id="stat-racha">0</div>
+                    <div class="stat-label">Racha Máxima</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-numero" id="stat-logros-desbloqueados">0/26</div>
+                    <div class="stat-label">Logros</div>
+                </div>
+            </div>
+
+            <div class="progreso-general">
+                <div class="progreso-barra">
+                    <div class="progreso-fill" id="progreso-fill"></div>
+                </div>
+                <div class="progreso-texto" id="progreso-texto">0% completado</div>
+            </div>
+
+            <div class="filtros-logros">
+                <button class="filtro-logro-btn active" data-categoria="todos">Todos</button>
+                <button class="filtro-logro-btn" data-categoria="primeros-pasos">🌱 Inicio</button>
+                <button class="filtro-logro-btn" data-categoria="rachas">🔥 Rachas</button>
+                <button class="filtro-logro-btn" data-categoria="velocidad">⚡ Velocidad</button>
+                <button class="filtro-logro-btn" data-categoria="maestria">📚 Maestría</button>
+                <button class="filtro-logro-btn" data-categoria="dedicacion">📅 Dedicación</button>
+                <button class="filtro-logro-btn" data-categoria="especiales">🌟 Especiales</button>
+            </div>
+
+            <div id="lista-logros" class="lista-logros">
+                <!-- Los logros se generarán dinámicamente -->
+            </div>
+
+            <button id="btn-volver-logros" class="btn-secundario">← Volver</button>
         </div>
 
         <!-- Pantalla de Configuración (Para Padres) -->
@@ -193,13 +243,29 @@
 
         <!-- Pantalla de Registro de Jugadores -->
         <div id="pantalla-registro" class="pantalla">
-            <h2>📝 Registro de Jugadores</h2>
+            <h2>📝 ¿Cómo quieres jugar?</h2>
 
-            <div id="registro-jugador1" class="registro-form">
-                <h3>👤 Jugador 1</h3>
-                <input type="text" id="nombre-jugador1" placeholder="Escribe tu nombre..." maxlength="15">
-                <button id="btn-confirmar1" class="btn-confirmar">✓ Confirmar</button>
+            <div class="seleccion-modo">
+                <button id="btn-modo-solitario" class="btn-modo">
+                    <div class="modo-icono">👤</div>
+                    <div class="modo-nombre">Un Jugador</div>
+                    <div class="modo-desc">Desbloquea logros jugando solo</div>
+                </button>
+                <button id="btn-modo-dos-jugadores" class="btn-modo">
+                    <div class="modo-icono">👥</div>
+                    <div class="modo-nombre">Dos Jugadores</div>
+                    <div class="modo-desc">Compite con un amigo</div>
+                </button>
             </div>
+
+            <div id="formulario-registro" class="oculto">
+                <h2 id="titulo-registro">📝 Registro de Jugadores</h2>
+
+                <div id="registro-jugador1" class="registro-form">
+                    <h3>👤 Jugador 1</h3>
+                    <input type="text" id="nombre-jugador1" placeholder="Escribe tu nombre..." maxlength="15">
+                    <button id="btn-confirmar1" class="btn-confirmar">✓ Confirmar</button>
+                </div>
 
             <div id="registro-jugador2" class="registro-form oculto">
                 <h3>👤 Jugador 2</h3>
@@ -209,8 +275,10 @@
 
             <div id="jugadores-registrados" class="jugadores-lista oculto">
                 <p>✅ <span id="nombre1-display"></span></p>
-                <p>✅ <span id="nombre2-display"></span></p>
+                <p id="jugador2-display-container">✅ <span id="nombre2-display"></span></p>
             </div>
+
+            </div> <!-- Fin formulario-registro -->
         </div>
 
         <!-- Pantalla de Anuncio de Turno -->

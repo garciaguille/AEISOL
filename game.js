@@ -11,7 +11,204 @@ let configuracion = {
     tiempoPorTurno: 158,      // segundos
     totalRondas: 5,            // número de rondas
     dificultad: 'normal',      // 'facil', 'normal', 'dificil', 'mixto'
-    sonidosActivados: true
+    sonidosActivados: true,
+    modoJuego: 'dos-jugadores' // 'dos-jugadores' o 'un-jugador'
+};
+
+// ==========================================
+// SISTEMA DE LOGROS Y PROGRESO
+// ==========================================
+
+const LOGROS = {
+    // Primeros Pasos
+    primera_palabra: {
+        id: 'primera_palabra',
+        nombre: 'Primera Palabra',
+        descripcion: 'Lee tu primera palabra correctamente',
+        icono: '🌱',
+        categoria: 'primeros-pasos',
+        condicion: (progreso) => progreso.palabrasCorrectas >= 1
+    },
+    primera_partida: {
+        id: 'primera_partida',
+        nombre: '¡Empezamos!',
+        descripcion: 'Completa tu primera partida',
+        icono: '🎮',
+        categoria: 'primeros-pasos',
+        condicion: (progreso) => progreso.partidasCompletadas >= 1
+    },
+
+    // Rachas
+    racha_3: {
+        id: 'racha_3',
+        nombre: 'Racha de 3',
+        descripcion: '3 palabras correctas seguidas',
+        icono: '🔥',
+        categoria: 'rachas',
+        condicion: (progreso) => progreso.rachaMaxima >= 3
+    },
+    racha_5: {
+        id: 'racha_5',
+        nombre: 'Racha de 5',
+        descripcion: '5 palabras correctas seguidas',
+        icono: '🔥',
+        categoria: 'rachas',
+        condicion: (progreso) => progreso.rachaMaxima >= 5
+    },
+    racha_10: {
+        id: 'racha_10',
+        nombre: 'Racha de 10',
+        descripcion: '10 palabras correctas seguidas',
+        icono: '🔥',
+        categoria: 'rachas',
+        condicion: (progreso) => progreso.rachaMaxima >= 10
+    },
+    imparable: {
+        id: 'imparable',
+        nombre: 'Imparable',
+        descripcion: '20 palabras correctas seguidas',
+        icono: '💥',
+        categoria: 'rachas',
+        condicion: (progreso) => progreso.rachaMaxima >= 20
+    },
+
+    // Velocidad
+    rapido: {
+        id: 'rapido',
+        nombre: 'Rápido',
+        descripcion: 'Acertar una palabra en menos de 10 segundos',
+        icono: '⚡',
+        categoria: 'velocidad',
+        condicion: (progreso) => progreso.aciertosRapidos >= 1
+    },
+    relampago: {
+        id: 'relampago',
+        nombre: 'Relámpago',
+        descripcion: 'Acertar 5 palabras en menos de 10 segundos',
+        icono: '⚡',
+        categoria: 'velocidad',
+        condicion: (progreso) => progreso.aciertosRapidos >= 5
+    },
+    sin_ayuda: {
+        id: 'sin_ayuda',
+        nombre: 'Flash',
+        descripcion: 'Acertar sin usar ayudas',
+        icono: '⚡',
+        categoria: 'velocidad',
+        condicion: (progreso) => progreso.aciertosSinAyuda >= 1
+    },
+
+    // Maestría
+    aprendiz: {
+        id: 'aprendiz',
+        nombre: 'Aprendiz',
+        descripcion: '10 palabras correctas en total',
+        icono: '📖',
+        categoria: 'maestria',
+        condicion: (progreso) => progreso.palabrasCorrectas >= 10
+    },
+    estudiante: {
+        id: 'estudiante',
+        nombre: 'Estudiante',
+        descripcion: '25 palabras correctas en total',
+        icono: '📚',
+        categoria: 'maestria',
+        condicion: (progreso) => progreso.palabrasCorrectas >= 25
+    },
+    experto: {
+        id: 'experto',
+        nombre: 'Experto',
+        descripcion: '50 palabras correctas en total',
+        icono: '🎓',
+        categoria: 'maestria',
+        condicion: (progreso) => progreso.palabrasCorrectas >= 50
+    },
+    maestro: {
+        id: 'maestro',
+        nombre: 'Maestro',
+        descripcion: '100 palabras correctas en total',
+        icono: '👨‍🎓',
+        categoria: 'maestria',
+        condicion: (progreso) => progreso.palabrasCorrectas >= 100
+    },
+    leyenda: {
+        id: 'leyenda',
+        nombre: 'Leyenda',
+        descripcion: '200 palabras correctas en total',
+        icono: '🏆',
+        categoria: 'maestria',
+        condicion: (progreso) => progreso.palabrasCorrectas >= 200
+    },
+
+    // Dedicación
+    jugador_frecuente: {
+        id: 'jugador_frecuente',
+        nombre: 'Jugador Frecuente',
+        descripcion: 'Jugar 5 días diferentes',
+        icono: '📅',
+        categoria: 'dedicacion',
+        condicion: (progreso) => progreso.diasJugados >= 5
+    },
+    dedicado: {
+        id: 'dedicado',
+        nombre: 'Dedicado',
+        descripcion: 'Jugar 10 días diferentes',
+        icono: '📅',
+        categoria: 'dedicacion',
+        condicion: (progreso) => progreso.diasJugados >= 10
+    },
+    comprometido: {
+        id: 'comprometido',
+        nombre: 'Comprometido',
+        descripcion: 'Jugar 20 días diferentes',
+        icono: '🗓️',
+        categoria: 'dedicacion',
+        condicion: (progreso) => progreso.diasJugados >= 20
+    },
+
+    // Especiales
+    perfeccionista: {
+        id: 'perfeccionista',
+        nombre: 'Perfeccionista',
+        descripcion: 'Completar una partida sin fallar ninguna palabra',
+        icono: '💯',
+        categoria: 'especiales',
+        condicion: (progreso) => progreso.partidasPerfectas >= 1
+    },
+    explorador: {
+        id: 'explorador',
+        nombre: 'Explorador',
+        descripcion: 'Probar los 3 niveles de dificultad',
+        icono: '🗺️',
+        categoria: 'especiales',
+        condicion: (progreso) => progreso.dificultadesJugadas.size >= 3
+    },
+    personalizado: {
+        id: 'personalizado',
+        nombre: 'Creativo',
+        descripcion: 'Crear una palabra personalizada',
+        icono: '✨',
+        categoria: 'especiales',
+        condicion: (progreso) => progreso.palabrasCreadas >= 1
+    }
+};
+
+// Progreso del jugador
+let progresoJugador = {
+    palabrasCorrectas: 0,
+    palabrasIncorrectas: 0,
+    partidasCompletadas: 0,
+    partidasPerfectas: 0,
+    rachaActual: 0,
+    rachaMaxima: 0,
+    aciertosRapidos: 0,
+    aciertosSinAyuda: 0,
+    diasJugados: 0,
+    ultimoDiaJugado: '',
+    dificultadesJugadas: new Set(),
+    palabrasCreadas: 0,
+    logrosDesbloqueados: [],
+    recordPersonal: 0
 };
 
 // Configuración de los dados (cada dado solo se usa UNA vez)
@@ -156,6 +353,221 @@ function cargarPalabrasPersonalizadas() {
 function guardarPalabrasPersonalizadas() {
     localStorage.setItem('juegoLeerDados_palabras', JSON.stringify(palabrasPersonalizadas));
     localStorage.setItem('juegoLeerDados_palabrasNuevas', JSON.stringify(palabrasNuevas));
+}
+
+// ==========================================
+// FUNCIONES DE PROGRESO Y LOGROS
+// ==========================================
+
+// Cargar progreso desde localStorage
+function cargarProgreso() {
+    const guardado = localStorage.getItem('juegoLeerDados_progreso');
+    if (guardado) {
+        const progresoGuardado = JSON.parse(guardado);
+        progresoJugador = {
+            ...progresoJugador,
+            ...progresoGuardado,
+            dificultadesJugadas: new Set(progresoGuardado.dificultadesJugadas || [])
+        };
+    }
+
+    // Registrar día actual
+    const hoy = new Date().toDateString();
+    if (progresoJugador.ultimoDiaJugado !== hoy) {
+        if (progresoJugador.ultimoDiaJugado) {
+            progresoJugador.diasJugados++;
+        } else {
+            progresoJugador.diasJugados = 1;
+        }
+        progresoJugador.ultimoDiaJugado = hoy;
+        guardarProgreso();
+    }
+}
+
+// Guardar progreso en localStorage
+function guardarProgreso() {
+    const progresoParaGuardar = {
+        ...progresoJugador,
+        dificultadesJugadas: Array.from(progresoJugador.dificultadesJugadas)
+    };
+    localStorage.setItem('juegoLeerDados_progreso', JSON.stringify(progresoParaGuardar));
+}
+
+// Actualizar progreso después de acierto
+function registrarAciertoPalabraLogros(tiempoUsado, usaronAyuda) {
+    progresoJugador.palabrasCorrectas++;
+    progresoJugador.rachaActual++;
+
+    // Actualizar racha máxima
+    if (progresoJugador.rachaActual > progresoJugador.rachaMaxima) {
+        progresoJugador.rachaMaxima = progresoJugador.rachaActual;
+    }
+
+    // Acierto rápido (menos de 10 segundos)
+    if (tiempoUsado < 10) {
+        progresoJugador.aciertosRapidos++;
+    }
+
+    // Acierto sin ayuda
+    if (!usaronAyuda) {
+        progresoJugador.aciertosSinAyuda++;
+    }
+
+    // Registrar dificultad jugada
+    progresoJugador.dificultadesJugadas.add(configuracion.dificultad);
+
+    // Verificar logros desbloqueados
+    verificarLogros();
+
+    guardarProgreso();
+}
+
+// Actualizar progreso después de fallo
+function registrarFalloPalabraLogros() {
+    progresoJugador.palabrasIncorrectas++;
+    progresoJugador.rachaActual = 0;
+    guardarProgreso();
+}
+
+// Registrar partida completada
+function registrarPartidaCompletada(fallos) {
+    progresoJugador.partidasCompletadas++;
+
+    // Partida perfecta
+    if (fallos === 0) {
+        progresoJugador.partidasPerfectas++;
+    }
+
+    verificarLogros();
+    guardarProgreso();
+}
+
+// Registrar palabra creada
+function registrarPalabraCreada() {
+    progresoJugador.palabrasCreadas++;
+    verificarLogros();
+    guardarProgreso();
+}
+
+// Verificar y desbloquear logros
+function verificarLogros() {
+    const logrosNuevos = [];
+
+    Object.values(LOGROS).forEach(logro => {
+        // Si el logro no está desbloqueado y cumple la condición
+        if (!progresoJugador.logrosDesbloqueados.includes(logro.id) &&
+            logro.condicion(progresoJugador)) {
+            progresoJugador.logrosDesbloqueados.push(logro.id);
+            logrosNuevos.push(logro);
+        }
+    });
+
+    // Mostrar notificaciones de logros nuevos
+    if (logrosNuevos.length > 0) {
+        logrosNuevos.forEach(logro => {
+            mostrarNotificacionLogro(logro);
+        });
+    }
+}
+
+// Mostrar notificación de logro desbloqueado
+function mostrarNotificacionLogro(logro) {
+    reproducirSonidoBonus();
+
+    const notificacion = document.createElement('div');
+    notificacion.className = 'notificacion-logro';
+    notificacion.innerHTML = `
+        <div class="logro-desbloqueado">
+            <div class="logro-icono">${logro.icono}</div>
+            <div class="logro-info">
+                <div class="logro-titulo">¡Logro Desbloqueado!</div>
+                <div class="logro-nombre">${logro.nombre}</div>
+                <div class="logro-descripcion">${logro.descripcion}</div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(notificacion);
+
+    // Animar entrada
+    setTimeout(() => notificacion.classList.add('mostrar'), 100);
+
+    // Ocultar después de 4 segundos
+    setTimeout(() => {
+        notificacion.classList.remove('mostrar');
+        setTimeout(() => notificacion.remove(), 500);
+    }, 4000);
+}
+
+// Obtener estadísticas para mostrar
+function obtenerEstadisticas() {
+    const totalPalabras = progresoJugador.palabrasCorrectas + progresoJugador.palabrasIncorrectas;
+    const precision = totalPalabras > 0
+        ? Math.round((progresoJugador.palabrasCorrectas / totalPalabras) * 100)
+        : 0;
+
+    return {
+        palabrasCorrectas: progresoJugador.palabrasCorrectas,
+        palabrasIncorrectas: progresoJugador.palabrasIncorrectas,
+        precision: precision,
+        rachaMaxima: progresoJugador.rachaMaxima,
+        partidasCompletadas: progresoJugador.partidasCompletadas,
+        logrosDesbloqueados: progresoJugador.logrosDesbloqueados.length,
+        logrosTotal: Object.keys(LOGROS).length,
+        diasJugados: progresoJugador.diasJugados
+    };
+}
+
+// ==========================================
+// FUNCIONES DE UI - PANTALLA DE LOGROS
+// ==========================================
+
+function mostrarPantallaLogros() {
+    reproducirSonidoClick();
+    renderizarLogros();
+    actualizarEstadisticasLogros();
+    mostrarPantalla('pantalla-logros');
+}
+
+function renderizarLogros(categoriaFiltro = 'todos') {
+    const lista = document.getElementById('lista-logros');
+    lista.innerHTML = '';
+
+    Object.values(LOGROS).forEach(logro => {
+        // Filtrar por categoría
+        if (categoriaFiltro !== 'todos' && logro.categoria !== categoriaFiltro) {
+            return;
+        }
+
+        const desbloqueado = progresoJugador.logrosDesbloqueados.includes(logro.id);
+        const logroElement = document.createElement('div');
+        logroElement.className = `logro-card ${desbloqueado ? 'desbloqueado' : 'bloqueado'}`;
+
+        logroElement.innerHTML = `
+            <div class="logro-icono-grande">${logro.icono}</div>
+            <div class="logro-detalles">
+                <div class="logro-nombre-card">${logro.nombre}</div>
+                <div class="logro-descripcion-card">${logro.descripcion}</div>
+                ${!desbloqueado ? '<div class="logro-bloqueado-texto">🔒 Bloqueado</div>' : '<div class="logro-desbloqueado-marca">✅ Desbloqueado</div>'}
+            </div>
+        `;
+
+        lista.appendChild(logroElement);
+    });
+}
+
+function actualizarEstadisticasLogros() {
+    const stats = obtenerEstadisticas();
+
+    document.getElementById('stat-palabras').textContent = stats.palabrasCorrectas;
+    document.getElementById('stat-precision').textContent = `${stats.precision}%`;
+    document.getElementById('stat-racha').textContent = stats.rachaMaxima;
+    document.getElementById('stat-logros-desbloqueados').textContent = `${stats.logrosDesbloqueados}/${stats.logrosTotal}`;
+
+    // Actualizar barra de progreso
+    const porcentaje = Math.round((stats.logrosDesbloqueados / stats.logrosTotal) * 100);
+    document.getElementById('progreso-fill').style.width = `${porcentaje}%`;
+    document.getElementById('progreso-texto').textContent = `${porcentaje}% completado`;
 }
 
 // Obtener todas las palabras base (sin modificar) + palabras nuevas del usuario
@@ -1063,6 +1475,11 @@ function registrarAcierto() {
     const puntos = calcularPuntosPorTiempo();
     jugador.puntos += puntos.total;
 
+    // Registrar logros (tiempo usado y si usó ayudas)
+    const tiempoUsado = configuracion.tiempoPorTurno - estadoJuego.tiempoRestante;
+    const usaronAyuda = estadoJuego.nivelAyuda > 0;
+    registrarAciertoPalabraLogros(tiempoUsado, usaronAyuda);
+
     // Mostrar animación de puntos
     mostrarAnimacionPuntos(puntos);
 
@@ -1076,11 +1493,16 @@ function registrarAcierto() {
 
 function registrarFallo() {
     reproducirSonidoError();
+    registrarFalloPalabraLogros();
     siguienteTurno();
 }
 
 function finalizarJuego() {
     estadoJuego.juegoTerminado = true;
+
+    // Registrar partida completada (contar fallos desde palabrasIncorrectas)
+    const fallosEnPartida = progresoJugador.palabrasIncorrectas;
+    registrarPartidaCompletada(fallosEnPartida);
 
     document.getElementById('final-nombre1').textContent = estadoJuego.jugador1.nombre;
     document.getElementById('final-puntos1').textContent = `${estadoJuego.jugador1.puntos} puntos`;
@@ -1148,6 +1570,11 @@ function reiniciarJuego() {
 
 document.addEventListener('DOMContentLoaded', () => {
 
+    // Cargar progreso y configuración
+    cargarProgreso();
+    cargarPalabrasPersonalizadas();
+    cargarConfiguracion();
+
     // Agregar sonidos de hover a todos los botones
     const botones = document.querySelectorAll('button');
     botones.forEach(btn => {
@@ -1166,6 +1593,30 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 800);
     });
 
+    // ==========================================
+    // SELECCIÓN DE MODO DE JUEGO
+    // ==========================================
+
+    // Modo un jugador (solitario)
+    document.getElementById('btn-modo-solitario').addEventListener('click', () => {
+        reproducirSonidoClick();
+        configuracion.modoJuego = 'un-jugador';
+        document.querySelector('.seleccion-modo').classList.add('oculto');
+        document.getElementById('formulario-registro').classList.remove('oculto');
+        document.getElementById('titulo-registro').textContent = '📝 Ingresa tu nombre';
+        document.getElementById('nombre-jugador1').focus();
+    });
+
+    // Modo dos jugadores
+    document.getElementById('btn-modo-dos-jugadores').addEventListener('click', () => {
+        reproducirSonidoClick();
+        configuracion.modoJuego = 'dos-jugadores';
+        document.querySelector('.seleccion-modo').classList.add('oculto');
+        document.getElementById('formulario-registro').classList.remove('oculto');
+        document.getElementById('titulo-registro').textContent = '📝 Registro de Jugadores';
+        document.getElementById('nombre-jugador1').focus();
+    });
+
     // Confirmar jugador 1
     document.getElementById('btn-confirmar1').addEventListener('click', () => {
         const nombre = document.getElementById('nombre-jugador1').value.trim();
@@ -1174,8 +1625,21 @@ document.addEventListener('DOMContentLoaded', () => {
             estadoJuego.jugador1.nombre = nombre;
             document.getElementById('nombre1-display').textContent = nombre;
             document.getElementById('registro-jugador1').classList.add('oculto');
-            document.getElementById('registro-jugador2').classList.remove('oculto');
-            document.getElementById('nombre-jugador2').focus();
+
+            // Si es modo un jugador, ir directo al juego
+            if (configuracion.modoJuego === 'un-jugador') {
+                estadoJuego.jugador2.nombre = "CPU"; // Jugador dummy
+                document.getElementById('jugadores-registrados').classList.remove('oculto');
+                document.getElementById('jugador2-display-container').style.display = 'none';
+
+                setTimeout(() => {
+                    mostrarPantallaTurno();
+                }, 1000);
+            } else {
+                // Modo dos jugadores
+                document.getElementById('registro-jugador2').classList.remove('oculto');
+                document.getElementById('nombre-jugador2').focus();
+            }
         } else {
             reproducirSonidoError();
             alert('Por favor, ingresa un nombre');
@@ -1282,6 +1746,32 @@ document.addEventListener('DOMContentLoaded', () => {
         reproducirSonidoClick();
         cargarConfiguracion(); // Restaurar valores guardados
         mostrarPantalla('pantalla-inicio');
+    });
+
+    // ==========================================
+    // EVENT LISTENERS - LOGROS
+    // ==========================================
+
+    // Botón abrir logros
+    document.getElementById('btn-logros').addEventListener('click', () => {
+        mostrarPantallaLogros();
+    });
+
+    // Botón volver desde logros
+    document.getElementById('btn-volver-logros').addEventListener('click', () => {
+        reproducirSonidoClick();
+        mostrarPantalla('pantalla-inicio');
+    });
+
+    // Filtros de logros
+    document.querySelectorAll('.filtro-logro-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            reproducirSonidoClick();
+            document.querySelectorAll('.filtro-logro-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const categoria = btn.dataset.categoria;
+            renderizarLogros(categoria);
+        });
     });
 
     // Tiempo personalizado checkbox
@@ -1468,6 +1958,9 @@ function abrirEditorPalabras() {
     document.getElementById('modal-editor').classList.remove('oculto');
     document.getElementById('buscar-palabra').value = '';
 
+    // Bloquear scroll del body
+    document.body.classList.add('modal-abierto');
+
     // Resetear filtros
     document.querySelectorAll('.filtro-dificultad .filtro-btn').forEach(b => b.classList.remove('active'));
     document.querySelector('.filtro-dificultad .filtro-btn[data-filtro="todas"]').classList.add('active');
@@ -1480,6 +1973,8 @@ function abrirEditorPalabras() {
 
 function cerrarEditorPalabras() {
     document.getElementById('modal-editor').classList.add('oculto');
+    // Restaurar scroll del body
+    document.body.classList.remove('modal-abierto');
 }
 
 function renderizarListaPalabras() {
@@ -1855,6 +2350,9 @@ function agregarNuevaPalabra() {
 
     // Agregar al array
     palabrasNuevas.push(nuevaPalabra);
+
+    // Registrar logro de palabra creada
+    registrarPalabraCreada();
 
     // Ocultar formulario y re-renderizar
     ocultarFormularioNuevaPalabra();
