@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego de Dados - Aprende a Leer</title>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#6c5ce7">
+
+    <!-- Apple Touch Icon -->
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Dados Leer">
+
+    <!-- Meta tags adicionales -->
+    <meta name="description" content="Juego educativo de dados para aprender a leer jugando">
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="game-container">
+        <!-- Pantalla de Inicio -->
+        <div id="pantalla-inicio" class="pantalla activa">
+            <h1>🎲 Juego de Dados 🎲</h1>
+            <h2>¡Aprende a Leer Jugando!</h2>
+            <div class="dados-decorativos">
+                <span class="dado">A</span>
+                <span class="dado">E</span>
+                <span class="dado">S</span>
+                <span class="dado">O</span>
+                <span class="dado">L</span>
+                <span class="dado">I</span>
+            </div>
+            <button id="btn-comenzar" class="btn-principal">🎮 Comenzar a Jugar</button>
+            <button id="btn-config" class="btn-config">⚙️ Configuración</button>
+        </div>
+
+        <!-- Pantalla de Configuración (Para Padres) -->
+        <div id="pantalla-config" class="pantalla">
+            <h2>⚙️ Configuración del Juego</h2>
+            <p class="config-subtitle">Panel para padres/tutores</p>
+
+            <div class="config-section">
+                <h3>⏱️ Tiempo por turno</h3>
+                <div class="config-options">
+                    <label class="config-option">
+                        <input type="radio" name="tiempo" value="60">
+                        <span class="option-box">
+                            <span class="option-icon">🐢</span>
+                            <span class="option-text">1 minuto</span>
+                            <span class="option-desc">Relajado</span>
+                        </span>
+                    </label>
+                    <label class="config-option">
+                        <input type="radio" name="tiempo" value="120">
+                        <span class="option-box">
+                            <span class="option-icon">🚶</span>
+                            <span class="option-text">2 minutos</span>
+                            <span class="option-desc">Normal</span>
+                        </span>
+                    </label>
+                    <label class="config-option">
+                        <input type="radio" name="tiempo" value="158" checked>
+                        <span class="option-box selected">
+                            <span class="option-icon">⭐</span>
+                            <span class="option-text">2:38 min</span>
+                            <span class="option-desc">Actual</span>
+                        </span>
+                    </label>
+                    <label class="config-option">
+                        <input type="radio" name="tiempo" value="300">
+                        <span class="option-box">
+                            <span class="option-icon">🐌</span>
+                            <span class="option-text">5 minutos</span>
+                            <span class="option-desc">Muy largo</span>
+                        </span>
+                    </label>
+                </div>
+                <div class="config-custom">
+                    <label>
+                        <input type="checkbox" id="tiempo-personalizado-check">
+                        Tiempo personalizado:
+                    </label>
+                    <input type="number" id="tiempo-personalizado" min="30" max="600" placeholder="segundos" disabled>
+                </div>
+            </div>
+
+            <div class="config-section">
+                <h3>🔄 Número de rondas</h3>
+                <div class="config-options rondas-options">
+                    <label class="config-option">
+                        <input type="radio" name="rondas" value="3">
+                        <span class="option-box">
+                            <span class="option-numero">3</span>
+                            <span class="option-desc">Corto</span>
+                        </span>
+                    </label>
+                    <label class="config-option">
+                        <input type="radio" name="rondas" value="5" checked>
+                        <span class="option-box selected">
+                            <span class="option-numero">5</span>
+                            <span class="option-desc">Normal</span>
+                        </span>
+                    </label>
+                    <label class="config-option">
+                        <input type="radio" name="rondas" value="7">
+                        <span class="option-box">
+                            <span class="option-numero">7</span>
+                            <span class="option-desc">Largo</span>
+                        </span>
+                    </label>
+                    <label class="config-option">
+                        <input type="radio" name="rondas" value="10">
+                        <span class="option-box">
+                            <span class="option-numero">10</span>
+                            <span class="option-desc">Maratón</span>
+                        </span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="config-section">
+                <h3>📚 Dificultad de palabras</h3>
+                <div class="config-options dificultad-options">
+                    <label class="config-option">
+                        <input type="radio" name="dificultad" value="facil">
+                        <span class="option-box dificultad-box">
+                            <span class="option-icon">🌱</span>
+                            <span class="option-text">Fácil</span>
+                            <span class="option-desc">2-3 letras</span>
+                        </span>
+                    </label>
+                    <label class="config-option">
+                        <input type="radio" name="dificultad" value="normal" checked>
+                        <span class="option-box dificultad-box selected">
+                            <span class="option-icon">🌿</span>
+                            <span class="option-text">Normal</span>
+                            <span class="option-desc">3-4 letras</span>
+                        </span>
+                    </label>
+                    <label class="config-option">
+                        <input type="radio" name="dificultad" value="dificil">
+                        <span class="option-box dificultad-box">
+                            <span class="option-icon">🌳</span>
+                            <span class="option-text">Difícil</span>
+                            <span class="option-desc">4-5+ letras</span>
+                        </span>
+                    </label>
+                    <label class="config-option">
+                        <input type="radio" name="dificultad" value="mixto">
+                        <span class="option-box dificultad-box">
+                            <span class="option-icon">🎲</span>
+                            <span class="option-text">Mixto</span>
+                            <span class="option-desc">Todas</span>
+                        </span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="config-section">
+                <h3>🔊 Sonidos</h3>
+                <div class="config-toggle">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="sonidos-activados" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span class="toggle-label">Sonidos activados</span>
+                </div>
+            </div>
+
+            <!-- Sección de Editor de Palabras -->
+            <div class="config-section">
+                <h3>📝 Editor de Palabras</h3>
+                <p class="editor-desc">Personaliza, habilita o deshabilita palabras del juego</p>
+                <button id="btn-abrir-editor" class="btn-editor">✏️ Abrir Editor de Palabras</button>
+            </div>
+
+            <div class="config-resumen">
+                <h4>📋 Resumen de configuración:</h4>
+                <p id="resumen-config">Tiempo: 2:38 min | Rondas: 5 | Dificultad: Normal | Sonidos: Sí</p>
+            </div>
+
+            <div class="config-buttons">
+                <button id="btn-guardar-config" class="btn-principal">💾 Guardar y Volver</button>
+                <button id="btn-cancelar-config" class="btn-secundario">❌ Cancelar</button>
+            </div>
+        </div>
+
+        <!-- Pantalla de Registro de Jugadores -->
+        <div id="pantalla-registro" class="pantalla">
+            <h2>📝 Registro de Jugadores</h2>
+
+            <div id="registro-jugador1" class="registro-form">
+                <h3>👤 Jugador 1</h3>
+                <input type="text" id="nombre-jugador1" placeholder="Escribe tu nombre..." maxlength="15">
+                <button id="btn-confirmar1" class="btn-confirmar">✓ Confirmar</button>
+            </div>
+
+            <div id="registro-jugador2" class="registro-form oculto">
+                <h3>👤 Jugador 2</h3>
+                <input type="text" id="nombre-jugador2" placeholder="Escribe tu nombre..." maxlength="15">
+                <button id="btn-confirmar2" class="btn-confirmar">✓ Confirmar</button>
+            </div>
+
+            <div id="jugadores-registrados" class="jugadores-lista oculto">
+                <p>✅ <span id="nombre1-display"></span></p>
+                <p>✅ <span id="nombre2-display"></span></p>
+            </div>
+        </div>
+
+        <!-- Pantalla de Anuncio de Turno -->
+        <div id="pantalla-turno" class="pantalla">
+            <h2>🌟 ¡Es tu turno! 🌟</h2>
+            <p class="nombre-turno" id="jugador-turno-nombre"></p>
+            <p class="info-ronda">Ronda <span id="ronda-actual">1</span> de <span id="total-rondas">5</span></p>
+            <button id="btn-iniciar-ronda" class="btn-principal">¡Listo para jugar! 🎯</button>
+        </div>
+
+        <!-- Pantalla de Juego -->
+        <div id="pantalla-juego" class="pantalla">
+            <div class="header-juego">
+                <div class="info-jugador">
+                    <span id="nombre-jugador-actual"></span>
+                </div>
+                <div class="temporizador" id="temporizador">
+                    <span id="tiempo">30</span>s
+                </div>
+                <div class="marcador">
+                    <span id="marcador-j1">0</span> - <span id="marcador-j2">0</span>
+                </div>
+            </div>
+
+            <div class="area-imagen">
+                <h3>¿Qué es esto? Forma la palabra con los dados</h3>
+                <div class="imagen-container">
+                    <img id="imagen-palabra" src="" alt="Imagen para adivinar">
+                </div>
+            </div>
+
+            <div class="area-dados">
+                <p>🎲 Usa tus dados para formar la palabra 🎲</p>
+                <div class="dados-hint">
+                    <span class="dado consonante">Consonantes</span>
+                    <span class="dado vocal">Vocales</span>
+                </div>
+            </div>
+
+            <!-- Contenedor de ayuda progresiva -->
+            <div id="ayuda-container" class="ayuda-container">
+                <div class="ayuda-label">💡 Pista:</div>
+                <div class="ayuda-letras">_ _ _ _</div>
+            </div>
+
+            <button id="btn-mostrar-respuesta" class="btn-respuesta">👁️ Mostrar Respuesta</button>
+
+            <div id="area-respuesta" class="oculto">
+                <div class="respuesta-correcta">
+                    <h3>La palabra es:</h3>
+                    <p id="palabra-correcta" class="palabra-grande"></p>
+                </div>
+                <div class="botones-resultado">
+                    <button id="btn-acerto" class="btn-acierto">✅ ¡Acerté!</button>
+                    <button id="btn-fallo" class="btn-fallo">❌ No acerté</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pantalla de Tiempo Agotado -->
+        <div id="pantalla-tiempo-agotado" class="pantalla">
+            <h2>⏰ ¡Se acabó el tiempo!</h2>
+            <p>La palabra era:</p>
+            <p id="palabra-tiempo-agotado" class="palabra-grande"></p>
+            <button id="btn-continuar-tiempo" class="btn-principal">Continuar ➡️</button>
+        </div>
+
+        <!-- Pantalla de Resultados Finales -->
+        <div id="pantalla-final" class="pantalla">
+            <h2>🏆 ¡Fin del Juego! 🏆</h2>
+            <div class="resultados-finales">
+                <div class="resultado-jugador">
+                    <span id="final-nombre1"></span>
+                    <span id="final-puntos1" class="puntos-final"></span>
+                </div>
+                <div class="resultado-jugador">
+                    <span id="final-nombre2"></span>
+                    <span id="final-puntos2" class="puntos-final"></span>
+                </div>
+            </div>
+            <div id="mensaje-ganador" class="mensaje-ganador"></div>
+            <button id="btn-jugar-nuevo" class="btn-principal">🔄 Jugar de Nuevo</button>
+        </div>
+    </div>
+
+    <!-- Contenedor de Confeti -->
+    <div id="confeti-container"></div>
+
+    <!-- Modal Editor de Palabras -->
+    <div id="modal-editor" class="modal-overlay oculto">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📝 Editor de Palabras</h2>
+                <button id="btn-cerrar-modal" class="btn-cerrar-modal">✕</button>
+            </div>
+
+            <div class="editor-filtros">
+                <div class="filtro-busqueda">
+                    <input type="text" id="buscar-palabra" placeholder="🔍 Buscar palabra...">
+                </div>
+                <div class="filtro-dificultad">
+                    <button class="filtro-btn active" data-filtro="todas">Todas</button>
+                    <button class="filtro-btn" data-filtro="facil">🌱 Fácil</button>
+                    <button class="filtro-btn" data-filtro="normal">🌿 Normal</button>
+                    <button class="filtro-btn" data-filtro="dificil">🌳 Difícil</button>
+                </div>
+                <div class="filtro-estado">
+                    <button class="filtro-btn" data-estado="todas">Todas</button>
+                    <button class="filtro-btn" data-estado="habilitadas">✅ Habilitadas</button>
+                    <button class="filtro-btn" data-estado="deshabilitadas">❌ Deshabilitadas</button>
+                </div>
+            </div>
+
+            <div class="editor-acciones-masivas">
+                <button id="btn-nueva-palabra" class="btn-accion-masiva btn-nueva">➕ Nueva Palabra</button>
+                <button id="btn-habilitar-todas" class="btn-accion-masiva">✅ Habilitar Todas</button>
+                <button id="btn-deshabilitar-todas" class="btn-accion-masiva">❌ Deshabilitar Todas</button>
+                <button id="btn-restaurar-palabras" class="btn-accion-masiva">🔄 Restaurar Original</button>
+            </div>
+
+            <!-- Formulario para nueva palabra (oculto por defecto) -->
+            <div id="form-nueva-palabra" class="form-nueva-palabra oculto">
+                <h4>➕ Agregar Nueva Palabra</h4>
+                <div class="form-nueva-contenido">
+                    <div class="form-nueva-imagen">
+                        <div id="preview-nueva-imagen" class="preview-nueva-imagen">
+                            <span>📷</span>
+                            <small>Clic para agregar imagen</small>
+                        </div>
+                        <input type="file" id="input-nueva-imagen" accept="image/png, image/jpeg, image/gif, image/webp" class="oculto">
+                    </div>
+                    <div class="form-nueva-campos">
+                        <input type="text" id="input-nueva-palabra" placeholder="Escribe la palabra..." maxlength="20">
+                        <select id="select-nueva-dificultad">
+                            <option value="facil">🌱 Fácil (2-3 letras)</option>
+                            <option value="normal" selected>🌿 Normal (4 letras)</option>
+                            <option value="dificil">🌳 Difícil (5+ letras)</option>
+                        </select>
+                    </div>
+                    <div class="form-nueva-botones">
+                        <button id="btn-confirmar-nueva" class="btn-confirmar-nueva">✅ Agregar</button>
+                        <button id="btn-cancelar-nueva" class="btn-cancelar-nueva">❌ Cancelar</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="editor-stats">
+                <span id="stats-habilitadas">0 habilitadas</span> |
+                <span id="stats-total">0 total</span> |
+                <span id="stats-personalizadas">0 personalizadas</span>
+            </div>
+
+            <div id="lista-palabras" class="lista-palabras">
+                <!-- Las palabras se generan dinámicamente -->
+            </div>
+
+            <div class="modal-footer">
+                <button id="btn-guardar-palabras" class="btn-principal">💾 Guardar Cambios</button>
+                <button id="btn-cancelar-palabras" class="btn-secundario">❌ Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+
+    <!-- Service Worker Registration -->
+    <script>
+        // Registrar Service Worker para PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .then((registration) => {
+                        console.log('✅ Service Worker registrado:', registration.scope);
+                    })
+                    .catch((error) => {
+                        console.log('❌ Error al registrar Service Worker:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

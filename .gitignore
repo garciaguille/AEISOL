@@ -1,0 +1,20 @@
+# Sistema
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Temporales
+*.tmp
+*.temp
+
+# Claude Code
+.claude/
+
+# Generador temporal de iconos
+generar-iconos.html

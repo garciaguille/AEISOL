@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Iconos - PWA</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            text-align: center;
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 { color: #6c5ce7; }
+        canvas {
+            border: 2px solid #ddd;
+            margin: 10px;
+            border-radius: 10px;
+        }
+        button {
+            background: linear-gradient(145deg, #00b894, #00cec9);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border-radius: 25px;
+            cursor: pointer;
+            margin: 10px;
+            box-shadow: 0 5px 20px rgba(0, 184, 148, 0.4);
+        }
+        button:hover {
+            transform: translateY(-3px);
+        }
+        .instrucciones {
+            background: #fff9c4;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 2px solid #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎲 Generador de Iconos PWA</h1>
+
+        <div class="instrucciones">
+            <h3>📝 Instrucciones:</h3>
+            <p>1. Haz clic en cada botón para generar los iconos</p>
+            <p>2. Haz clic derecho en cada imagen y "Guardar imagen como..."</p>
+            <p>3. Guarda como <strong>icon-192.png</strong> e <strong>icon-512.png</strong></p>
+            <p>4. Guárdalos en la misma carpeta que el juego</p>
+        </div>
+
+        <h3>Icono 192x192</h3>
+        <canvas id="canvas192" width="192" height="192"></canvas>
+        <br>
+        <button onclick="generarIcono(192)">Generar 192x192</button>
+        <button onclick="descargar(192)">Descargar 192x192</button>
+
+        <hr style="margin: 30px 0;">
+
+        <h3>Icono 512x512</h3>
+        <canvas id="canvas512" width="512" height="512"></canvas>
+        <br>
+        <button onclick="generarIcono(512)">Generar 512x512</button>
+        <button onclick="descargar(512)">Descargar 512x512</button>
+    </div>
+
+    <script>
+        function generarIcono(size) {
+            const canvas = document.getElementById(`canvas${size}`);
+            const ctx = canvas.getContext('2d');
+
+            // Fondo con gradiente
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#6c5ce7');
+            gradient.addColorStop(0.5, '#a29bfe');
+            gradient.addColorStop(1, '#6c5ce7');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, size, size);
+
+            // Emoji de dado
+            ctx.font = `${size * 0.6}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('🎲', size / 2, size / 2);
+
+            console.log(`Icono ${size}x${size} generado`);
+        }
+
+        function descargar(size) {
+            const canvas = document.getElementById(`canvas${size}`);
+            const link = document.createElement('a');
+            link.download = `icon-${size}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        // Generar ambos iconos al cargar
+        window.onload = function() {
+            generarIcono(192);
+            generarIcono(512);
+        };
+    </script>
+</body>
+</html>
